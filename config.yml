@@ -1,0 +1,23 @@
+path_conf:
+  chinese_corpus_path: ""
+  english_corpus_path: ""
+  random_character_path: ""
+  random_latin_charater_path: ""
+  specific_scene_character_path: ""
+
+random_conf:
+  seed:
+  chinese_corpus_probability: 0.3
+  english_corpus_probability: 0.3
+  random_character_probability: 0.1
+  specific_scene_character_probability: 0.2
+
+gen_mode_conf:
+  ocr_data_gen: 1
+  detect_data_gen: 1
+  sementic_data_gen: 0
+
+text_img_conf:
+  font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
+
+
