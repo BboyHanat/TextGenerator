@@ -39,12 +39,15 @@ class CharImg:
     字符图片对象
     """
 
-    def __init__(self, char, font_size, color, box=(0, 0, 0, 0), size=(0, 0)):
+    def __init__(self, char, font_size, color, box=(0, 0, 0, 0), size=(0, 0), border_width=0,
+                 border_color=(0, 0, 0, 0)):
         self.char = char
         self.font_size = font_size
         self.color = color
         self.box = box
         self.size = size
+        self.border_width = border_width
+        self.border_color = border_color
 
     def __repr__(self):
         return json.dumps(self.__dict__)
@@ -133,7 +136,7 @@ class TextImg:
             j = json.load(f)
             return TextImg(**j)
 
-    def show(self, with_box=True):
+    def show(self, with_box=False):
         """
         展示图片
         :param with_box:
@@ -217,6 +220,10 @@ class TextImgProvider:
 
             # 获取当前字符的背景尺寸
             char_bg_w, char_bg_h = font.getsize(char_obj.char)
+            # 加上边框尺寸
+            char_bg_w += char_obj.border_width * 2
+            char_bg_h += char_obj.border_width * 2
+
             char_obj.size = (char_bg_w, char_bg_h)
 
             # 获取当前行文本的最大字符图片的宽高
@@ -288,7 +295,12 @@ class TextImgProvider:
                     l = 0
                 char_obj.box = [l, t, l + cw, t + ch]
 
-            draw.text((l, t), text=char_obj.char, fill=char_obj.color, font=font)
+            draw.text((l + char_obj.border_width, t + char_obj.border_width),
+                      text=char_obj.char,
+                      fill=char_obj.color,
+                      font=font)
+            if char_obj.border_width > 0:
+                draw.rectangle(xy=tuple(char_obj.box), width=char_obj.border_width, outline=char_obj.border_color)
             tmp_char = char_obj
 
     def create(self,
@@ -323,22 +335,47 @@ class TextImgProvider:
                        img=img)
 
 
-text_img_provider = TextImgProvider(seed=conf['random_conf']['seed'], **conf['text_img_conf'])
+# ------------------------------------------------------------------------
+
+class TextImgGenerator:
+    def gen_common_text_img(self, provider: TextImgProvider, text: str, color, size,
+                            orientation=TYPE_ORIENTATION_VERTICAL,
+                            align_mode=TYPE_ALIGN_MODEL_C):
+        char_obj_list = []
+        for char in text:
+            char_obj_list.append(CharImg('你', font_size=12, color=(0, 0, 0, 255)))
+
+        text_img = provider.create(char_obj_list=char_obj_list,
+                                   orientation=orientation,
+                                   align_mode=align_mode)
+        return text_img
+
+
+seed = conf['random_conf']['seed']
+font_file_dir = conf['path_conf']['font_file_dir']
+text_img_output_dir = conf['path_conf']['text_img_output_dir']
+text_img_info_output_dir = conf['path_conf']['text_img_info_output_dir']
+
+text_img_provider = TextImgProvider(seed=seed,
+                                    font_file_dir=font_file_dir,
+                                    text_img_output_dir=text_img_output_dir,
+                                    text_img_info_output_dir=text_img_output_dir)
 
 if __name__ == '__main__':
     char_obj_list = []
     char_obj_list.append(CharImg('你', font_size=12, color=(0, 0, 0, 255)))
-    char_obj_list.append(CharImg('好', font_size=12, color=(0, 0, 0, 255)))
+    char_obj_list.append(
+        CharImg('好', font_size=12, color=(0, 0, 0, 255), border_width=1, border_color=(0, 0, 255, 255)))
     char_obj_list.append(CharImg('世', font_size=18, color=(0, 0, 0, 255)))
     char_obj_list.append(CharImg('界', font_size=18, color=(0, 255, 0, 255)))
     char_obj_list.append(CharImg('i', font_size=18, color=(0, 0, 0, 255)))
     char_obj_list.append(CharImg('o', font_size=18, color=(0, 0, 0, 255)))
-    r = text_img_provider.create(char_obj_list=char_obj_list, orientation=TYPE_ORIENTATION_VERTICAL,
+    r = text_img_provider.create(char_obj_list=char_obj_list, orientation=TYPE_ORIENTATION_HORIZONTAL,
                                  align_mode=TYPE_ALIGN_MODEL_C)
+    r.show()
 
-    print(r)
-    # r.export()
-    json_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info/20190920105635216957_v_c_你好世界io.json"
-    img = TextImg.load_from_json(json_path)
-    img.show()
-    # r.show()
+    # print(r)
+    # # r.export()
+    # json_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info/20190920105635216957_v_c_你好世界io.json"
+    # img = TextImg.load_from_json(json_path)
+    # img.show()
