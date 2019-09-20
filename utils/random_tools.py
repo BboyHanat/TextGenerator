@@ -11,7 +11,7 @@ class Random(object):
         :return:
         """
 
-        prob_sum = np.sum(np.asarray(prob_list))
+        prob_sum = sum(prob_list)
         assert prob_sum == 1
         prob_range_list = list()
         seek = 0.0
@@ -28,20 +28,46 @@ class Random(object):
                     return index
 
     @staticmethod
-    def random_prob(prob_thresh):
+    def random_prob(prob_thresh: float):
         """
         get a probability and compare with 'prob_thresh'
         :param prob_thresh:
         :return: True or False
         """
+        seed = time.time()
+        random.seed(seed)
         return prob_thresh > random.uniform(0, 1)
 
     @staticmethod
-    def random_int(low, heigh):
+    def random_int(low: int, high: int):
         """
-        get list seek
+        get a integer number in range (low, high)
         :param low:
-        :param heigh:
+        :param high:
         :return:
         """
-        return random.randint(low, heigh)
+        seed = time.time()
+        random.seed(seed)
+        return random.randint(low, high)
+
+    @staticmethod
+    def random_float(low: float, high: float):
+        """
+        get a float number in range (low, high)
+        :param low:
+        :param high:
+        :return:
+        """
+        seed = time.time()
+        random.seed(seed)
+        return random.uniform(low, high)
+
+    @staticmethod
+    def random_choice_list(choice_list):
+        """
+
+        :return:
+        """
+        seed = time.time()
+        random.seed(seed)
+        return random.choice(choice_list)

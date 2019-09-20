@@ -1,16 +1,29 @@
 path_conf:
+  # text provider config
   chinese_corpus_path: ""
   english_corpus_path: ""
   random_character_path: ""
-  random_latin_charater_path: ""
   specific_scene_character_path: ""
+  # image provider config
+  bgimage_dir: ""
+  # text render config
+  font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
+  text_img_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img"
+  text_img_info_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info"
 
 random_conf:
   seed: 1
+  # text provider config
   chinese_corpus_probability: 0.3
   english_corpus_probability: 0.3
   random_character_probability: 0.1
   specific_scene_character_probability: 0.2
+  # image provider config
+  bgimage_from_dir_probability: 0.8
+  bgimage_from_gauss_probability: 0.15
+  bgimage_from_quasicrystal_probability: 0.05
+
+
 
 gen_mode_conf:
   ocr_data_gen: 1
@@ -18,8 +31,7 @@ gen_mode_conf:
   sementic_data_gen: 0
 
 text_img_conf:
-  font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
-  text_img_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img"
-  text_img_info_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info"
+  img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
+
 
 
