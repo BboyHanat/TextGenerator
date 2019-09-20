@@ -1,16 +1,15 @@
 import os
 import time
-import random
 from typing import List
 import json
 import math
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from core import conf
 from core.constant import const
 from utils.decorator import singleton
 from utils import time_util as tu
+from utils.random_tools import Random
 
 TYPE_ORIENTATION_HORIZONTAL = 0
 TYPE_ORIENTATION_VERTICAL = 1
@@ -175,6 +174,9 @@ class TextImgProvider:
         :param text_img_info_output_dir: 文本图片数据输出目录
         :param seed:
         """
+        os.makedirs(text_img_output_dir, exist_ok=True)
+        os.makedirs(text_img_info_output_dir, exist_ok=True)
+
         if not seed:
             seed = time.time()
 
@@ -183,8 +185,7 @@ class TextImgProvider:
         self.text_img_output_dir = text_img_output_dir
         self.text_img_info_output_dir = text_img_info_output_dir
 
-        random.seed(seed)
-        random.shuffle(self.font_file_list)
+        Random.shuffle(self.font_file_list, seed)
 
     def next_font_path(self):
         """
@@ -341,53 +342,71 @@ class TextImgProvider:
 
 class TextImgGenerator:
 
-    def gen_common_text_img(self, provider: TextImgProvider, text: str, color=const.COLOR_BLACK, font_size=14,
-                            border_width=0,
-                            border_color=const.COLOR_TRANSPARENT,
-                            orientation=TYPE_ORIENTATION_HORIZONTAL,
-                            align_mode=TYPE_ALIGN_MODEL_C):
-        char_obj_list = []
-        for char in text:
-            char_obj_list.append(
-                CharImg(char, font_size=font_size, color=color, border_width=border_width, border_color=border_color))
+    def gen_text_img(self, provider: TextImgProvider, text: str, color=const.COLOR_BLACK, font_size=14,
+                     border_width=0,
+                     border_color=const.COLOR_TRANSPARENT,
+                     orientation=TYPE_ORIENTATION_HORIZONTAL,
+                     align_mode=TYPE_ALIGN_MODEL_C):
+        char_obj_list = self.gen_batch_char_obj(text=text, color=color, font_size=font_size, border_width=border_width,
+                                                border_color=border_color)
 
         text_img = provider.create(char_obj_list=char_obj_list,
                                    orientation=orientation,
                                    align_mode=align_mode)
         return text_img
 
+    def gen_complex_text_img(self, provider: TextImgProvider, batch_char_obj_list: List[List[CharImg]] = [],
+                             orientation=TYPE_ORIENTATION_HORIZONTAL,
+                             align_mode=TYPE_ALIGN_MODEL_C):
+        """
+        生成复杂的文本图片
+        :param provider:
+        :param batch_char_obj_list:
+        :param orientation:
+        :param align_mode:
+        :return:
+        """
+        char_obj_list = []
+        for batch_list in batch_char_obj_list:
+            char_obj_list.extend(batch_list)
 
-seed = conf['random_conf']['seed']
-font_file_dir = conf['path_conf']['font_file_dir']
-text_img_output_dir = conf['path_conf']['text_img_output_dir']
-text_img_info_output_dir = conf['path_conf']['text_img_info_output_dir']
+        text_img = provider.create(char_obj_list=char_obj_list,
+                                   orientation=orientation,
+                                   align_mode=align_mode)
+        return text_img
 
-text_img_provider = TextImgProvider(seed=seed,
-                                    font_file_dir=font_file_dir,
-                                    text_img_output_dir=text_img_output_dir,
-                                    text_img_info_output_dir=text_img_info_output_dir)
+    def gen_batch_char_obj(self, text, color, font_size, border_width=0, border_color=const.COLOR_TRANSPARENT) -> List[
+        CharImg]:
+        """
+        生成一批CharImg对象
+        :param text:
+        :param color:
+        :param font_size:
+        :param border_width:
+        :param border_color:
+        :return:
+        """
+        char_obj_list = []
+        for char in text:
+            char_obj_list.append(
+                CharImg(char, font_size=font_size, color=color, border_width=border_width, border_color=border_color))
+        return char_obj_list
+
 
 text_img_generator = TextImgGenerator()
 
 if __name__ == '__main__':
-    # char_obj_list = []
-    # char_obj_list.append(CharImg('你', font_size=12, color=(0, 0, 0, 255)))
-    # char_obj_list.append(
-    #     CharImg('好', font_size=12, color=(0, 0, 0, 255), border_width=1, border_color=(0, 0, 255, 255)))
-    # char_obj_list.append(CharImg('世', font_size=18, color=(0, 0, 0, 255)))
-    # char_obj_list.append(CharImg('界', font_size=18, color=(0, 255, 0, 255)))
-    # char_obj_list.append(CharImg('i', font_size=18, color=(0, 0, 0, 255)))
-    # char_obj_list.append(CharImg('o', font_size=18, color=(0, 0, 0, 255)))
-    # r = text_img_provider.create(char_obj_list=char_obj_list, orientation=TYPE_ORIENTATION_HORIZONTAL,
-    #                              align_mode=TYPE_ALIGN_MODEL_C)
-    # r.show()
+    # 使用示例
+    from core import text_img_provider
 
-    # print(r)
-    # # r.export()
-    # json_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info/20190920105635216957_v_c_你好世界io.json"
-    # img = TextImg.load_from_json(json_path)
-    # img.show()
-
-    p = text_img_generator.gen_common_text_img(text_img_provider, "hello world", color=const.COLOR_BLUE)
+    # 导出文本图片
+    p = text_img_generator.gen_text_img(text_img_provider, "hello world", color=const.COLOR_BLUE)
     p.export()
     # p.show()
+
+    # 构造文本图片
+    l = []
+    l.append(text_img_generator.gen_batch_char_obj("你好啊", const.COLOR_BLUE, font_size=24))
+    l.append(text_img_generator.gen_batch_char_obj("李佳楠", const.COLOR_GREEN, font_size=28))
+    r = text_img_generator.gen_complex_text_img(text_img_provider, l)
+    r.show()

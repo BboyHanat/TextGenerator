@@ -71,3 +71,8 @@ class Random(object):
         seed = time.time()
         random.seed(seed)
         return random.choice(choice_list)
+
+    @staticmethod
+    def shuffle(shuffle_list: list, seed=None):
+        random.seed(seed)
+        return random.shuffle(shuffle_list)
