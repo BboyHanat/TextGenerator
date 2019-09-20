@@ -1,2 +1,4 @@
+Pillow
+opencv-python
 ruamel.yaml
 numpy

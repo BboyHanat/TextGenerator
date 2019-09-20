@@ -6,7 +6,7 @@ path_conf:
   specific_scene_character_path: ""
 
 random_conf:
-  seed:
+  seed: 1
   chinese_corpus_probability: 0.3
   english_corpus_probability: 0.3
   random_character_probability: 0.1
@@ -19,5 +19,7 @@ gen_mode_conf:
 
 text_img_conf:
   font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
+  text_img_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img"
+  text_img_info_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info"
 
 
