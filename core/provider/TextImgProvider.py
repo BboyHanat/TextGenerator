@@ -82,8 +82,9 @@ class TextImg:
         for item in char_obj_list:
             if isinstance(item, dict):
                 tmp_list.append(CharImg(**item))
+        if tmp_list:
+            char_obj_list = tmp_list
 
-        char_obj_list = tmp_list
         self.char_obj_list = char_obj_list
         self.text = "".join([char_obj.char for char_obj in self.char_obj_list])
         self.text_img_output_dir = text_img_output_dir
@@ -159,7 +160,7 @@ class TextImg:
 
 class CharImgEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, CharImg):
+        if not isinstance(o, Image.Image):
             return o.__dict__
 
 
@@ -198,11 +199,11 @@ class TextImgProvider:
             self._font_index = 0
         return font_path
 
-    def _calc_bg_size(self,
-                      font_path: str,
-                      orientation: int,
-                      char_obj_list: List[CharImg],
-                      spacing_rate: float) -> tuple:
+    def calc_bg_size(self,
+                     font_path: str,
+                     orientation: int,
+                     char_obj_list: List[CharImg],
+                     spacing_rate: float) -> tuple:
         """
         计算背景尺寸
         :param font_path: 字体路径
@@ -310,7 +311,8 @@ class TextImgProvider:
                char_obj_list: List[CharImg],
                orientation: int = TYPE_ORIENTATION_HORIZONTAL,
                align_mode: int = TYPE_ALIGN_MODEL_B,
-               spacing_rate: float = 0.08
+               spacing_rate: float = 0.08,
+               font_path=""
                ):
         """
         生成文本图片
@@ -318,15 +320,14 @@ class TextImgProvider:
         :param orientation: 生成的方向
         :param align_mode: 文本对齐模式
         :param spacing_rate: 间距 (相对于文字大小的占比)
+        :param font_path: 字体文件路径
         :return:
         """
-        font_path = self.next_font_path()
-
         # 生成文本贴图的透明背景区域
-        bg_w, bg_h = self._calc_bg_size(font_path, orientation, char_obj_list, spacing_rate)
-        img = Image.new("RGBA", (bg_w, bg_h), color=const.COLOR_TRANSPARENT)
+        bg_w, bg_h = self.calc_bg_size(font_path, orientation, char_obj_list, spacing_rate)
 
         # 绘制文字
+        img = Image.new("RGBA", (bg_w, bg_h), color=const.COLOR_TRANSPARENT)
         draw = ImageDraw.Draw(img)
         self._draw_text(font_path, orientation, char_obj_list, spacing_rate, align_mode, img.size, draw)
 
@@ -342,7 +343,7 @@ class TextImgProvider:
 
 class TextImgGenerator:
 
-    def gen_text_img(self, provider: TextImgProvider, text: str, color=const.COLOR_BLACK, font_size=14,
+    def gen_text_img(self, provider: TextImgProvider, text: str, font_path, color=const.COLOR_BLACK, font_size=14,
                      border_width=0,
                      border_color=const.COLOR_TRANSPARENT,
                      orientation=TYPE_ORIENTATION_HORIZONTAL,
@@ -352,27 +353,28 @@ class TextImgGenerator:
 
         text_img = provider.create(char_obj_list=char_obj_list,
                                    orientation=orientation,
-                                   align_mode=align_mode)
+                                   align_mode=align_mode,
+                                   font_path=font_path)
         return text_img
 
-    def gen_complex_text_img(self, provider: TextImgProvider, batch_char_obj_list: List[List[CharImg]] = [],
+    def gen_complex_text_img(self, provider: TextImgProvider, char_obj_list: List[CharImg],
+                             font_path,
                              orientation=TYPE_ORIENTATION_HORIZONTAL,
                              align_mode=TYPE_ALIGN_MODEL_C):
         """
         生成复杂的文本图片
         :param provider:
-        :param batch_char_obj_list:
+        :param char_obj_list:
+        :param font_path:
         :param orientation:
         :param align_mode:
         :return:
         """
-        char_obj_list = []
-        for batch_list in batch_char_obj_list:
-            char_obj_list.extend(batch_list)
 
         text_img = provider.create(char_obj_list=char_obj_list,
                                    orientation=orientation,
-                                   align_mode=align_mode)
+                                   align_mode=align_mode,
+                                   font_path=font_path)
         return text_img
 
     def gen_batch_char_obj(self, text, color, font_size, border_width=0, border_color=const.COLOR_TRANSPARENT) -> List[
@@ -399,14 +401,24 @@ if __name__ == '__main__':
     # 使用示例
     from core import text_img_provider
 
+    # 获取一个字体文件的路径
+    fp = text_img_provider.next_font_path()
+
     # 导出文本图片
-    p = text_img_generator.gen_text_img(text_img_provider, "hello world", color=const.COLOR_BLUE)
+    p = text_img_generator.gen_text_img(text_img_provider, "hello world", color=const.COLOR_BLUE, font_path=fp)
     p.export()
     # p.show()
 
     # 构造文本图片
     l = []
-    l.append(text_img_generator.gen_batch_char_obj("你好啊", const.COLOR_BLUE, font_size=24))
-    l.append(text_img_generator.gen_batch_char_obj("李佳楠", const.COLOR_GREEN, font_size=28))
-    r = text_img_generator.gen_complex_text_img(text_img_provider, l)
-    r.show()
+    l.extend(text_img_generator.gen_batch_char_obj("你好啊", const.COLOR_BLUE, font_size=24))
+    l.extend(text_img_generator.gen_batch_char_obj("李佳楠", const.COLOR_GREEN, font_size=28))
+    r = text_img_generator.gen_complex_text_img(text_img_provider, l, font_path=fp)
+    # r.show()
+
+    # 获取文字区域尺寸信息
+    bg_w, bg_h = text_img_provider.calc_bg_size(fp, orientation=TYPE_ORIENTATION_HORIZONTAL, char_obj_list=l,
+                                                spacing_rate=0.1)
+
+    print(bg_w)
+    print(bg_h)
