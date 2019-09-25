@@ -182,7 +182,10 @@ if __name__ == '__main__':
     bg_img_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img/spider_man.jpeg"
 
     bg_img = Image.open(bg_img_path)
-    layout = Layout(bg_img=bg_img, group_box_list=[(0, 0, 500, 200), (30, 300, 800, 800)])
+    layout = Layout(bg_img=bg_img, group_box_list=[
+        (0, 0, 500, 200),
+        (30, 300, 800, 800)
+    ])
     layout.gen()
     layout.show(draw_rect=True)
 
