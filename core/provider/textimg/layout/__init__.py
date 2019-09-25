@@ -33,14 +33,13 @@ class Block:
                           inner_x + self.img.width + self.margin,
                           inner_y + self.img.height + self.margin)
 
-
     def locate_by_outter(self, outer_x, outer_y):
         inner_x = outer_x + self.margin
         inner_y = outer_y + self.margin
         self.locate_by_inner(inner_x, inner_y)
 
-        print('outer box >')
-        print(self.outer_box)
+        # print('outer box >')
+        # print(self.outer_box)
 
     def get_img(self) -> Image.Image:
         return self.img
@@ -104,10 +103,13 @@ class BlockGroup:
         :return:
         """
         fp = text_img_provider.next_font_path()
-        text_img = text_img_generator.gen_text_img(text_img_provider, "hello world", color=const.COLOR_BLUE,
+        text_img = text_img_generator.gen_text_img(text_img_provider, "hello world",
+                                                   font_size=28,
+                                                   color=const.COLOR_BLUE,
                                                    font_path=fp)
 
-        text_block = TextBlock(text_img=text_img, margin=40, rotate_angle=15)
+        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=10)
+        print(text_block.outer_size)
         return text_block
 
     def preview(self, draw_rect=False):
@@ -143,6 +145,9 @@ class BlockGroup:
             if draw_rect:
                 draw.rectangle(xy=block.outer_box, width=1, outline=const.COLOR_RED)
                 draw.rectangle(xy=block.inner_box, width=1, outline=const.COLOR_GREEN)
+
+        if draw_rect:
+            draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT, fill=const.COLOR_HALF_TRANSPARENT)
         sub_img = bg_img.crop(self.group_box)
         return sub_img
 
@@ -186,9 +191,9 @@ if __name__ == '__main__':
     bg_img_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img/spider_man.jpeg"
 
     bg_img = Image.open(bg_img_path)
-    layout = Layout(bg_img=bg_img, group_box_list=[(0, 0, 500, 200), (30, 300, 800, 500)])
+    layout = Layout(bg_img=bg_img, group_box_list=[(0, 0, 500, 200), (30, 300, 800, 800)])
     layout.gen()
-    layout.show()
+    layout.show(draw_rect=True)
 
     # # 获取一个字体文件的路径
     # fp = text_img_provider.next_font_path()

@@ -2,6 +2,7 @@ class Const:
 
     def __init__(self):
         self.COLOR_TRANSPARENT = (0, 0, 0, 0)
+        self.COLOR_HALF_TRANSPARENT = (0, 0, 0, 55)
         self.COLOR_RED = (255, 0, 0, 255)
         self.COLOR_GREEN = (0, 255, 0, 255)
         self.COLOR_BLUE = (0, 0, 255, 255)
