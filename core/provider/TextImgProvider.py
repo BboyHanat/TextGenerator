@@ -143,9 +143,7 @@ class TextImg:
         :param with_box:
         :return:
         """
-
-        image = np.array(self.img)
-        image = cv2.cvtColor(image, cv2.COLOR_RGBA2BGRA)
+        image = self.cv_img()
 
         if with_box:
             for char_obj in self.char_obj_list:
@@ -156,6 +154,22 @@ class TextImg:
         cv2.imshow(self.text, image)
         cv2.waitKey()
         cv2.destroyWindow(self.text)
+
+    def cv_img(self):
+        """
+        获取opencv的image对象
+        :return:
+        """
+        image = np.array(self.img)
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2BGRA)
+        return image
+
+    def pil_img(self):
+        """
+        获取pillow的image对象
+        :return:
+        """
+        return self.img
 
 
 class CharImgEncoder(json.JSONEncoder):
@@ -414,7 +428,7 @@ if __name__ == '__main__':
     l.extend(text_img_generator.gen_batch_char_obj("你好啊", const.COLOR_BLUE, font_size=24))
     l.extend(text_img_generator.gen_batch_char_obj("李佳楠", const.COLOR_GREEN, font_size=28))
     r = text_img_generator.gen_complex_text_img(text_img_provider, l, font_path=fp)
-    # r.show()
+    r.show()
 
     # 获取文字区域尺寸信息
     bg_w, bg_h = text_img_provider.calc_bg_size(fp, orientation=TYPE_ORIENTATION_HORIZONTAL, char_obj_list=l,
