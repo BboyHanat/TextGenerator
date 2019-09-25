@@ -76,28 +76,18 @@ class BlockGroup:
         自动添加block
         :return:
         """
-        from core.provider.textimg.layout.strategy import only_one_vertical_strategy as strategy
+        from core.provider.textimg.layout.strategy import strategy_controller as sc
+        strategy = sc.pick()
         r = True
         while r:
             # todo: next block 选择器逻辑开发
-            block = self.gen_block()
+            block = self._gen_block()
             r = strategy.logic(self, block)
             if r:
                 self.block_list.append(block)
                 # todo: crop文本贴图的逻辑可在此处完善
 
-    def add_block(self, block: Block, outer_x, outer_y):
-        """
-        添加block
-        :param block:
-        :param outer_x:
-        :param outer_y:
-        :return:
-        """
-        self.block_list.append(block)
-        block.locate_by_outter(outer_x, outer_y)
-
-    def gen_block(self):
+    def _gen_block(self):
         """
         生成一个block
         :return:
@@ -147,7 +137,8 @@ class BlockGroup:
                 draw.rectangle(xy=block.inner_box, width=1, outline=const.COLOR_GREEN)
 
         if draw_rect:
-            draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT, fill=const.COLOR_HALF_TRANSPARENT)
+            draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT,
+                           fill=const.COLOR_HALF_TRANSPARENT)
         sub_img = bg_img.crop(self.group_box)
         return sub_img
 

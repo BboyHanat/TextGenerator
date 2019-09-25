@@ -63,12 +63,11 @@ class Random(object):
         return random.uniform(low, high)
 
     @staticmethod
-    def random_choice_list(choice_list):
+    def random_choice_list(choice_list, seed=None):
         """
 
         :return:
         """
-        seed = time.time()
         random.seed(seed)
         return random.choice(choice_list)
 
