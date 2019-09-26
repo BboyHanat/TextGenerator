@@ -39,14 +39,14 @@ class Random(object):
         return prob_thresh > random.uniform(0, 1)
 
     @staticmethod
-    def random_int(low: int, high: int):
+    def random_int(low: int, high: int, seed=None):
         """
         get a integer number in range (low, high)
         :param low:
         :param high:
+        :param seed:
         :return:
         """
-        seed = time.time()
         random.seed(seed)
         return random.randint(low, high)
 
