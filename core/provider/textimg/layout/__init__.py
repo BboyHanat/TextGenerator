@@ -5,6 +5,7 @@ from core.constant import const
 from core.provider.textimg.layout.strategy import Strategy
 from core import text_img_provider
 from core.provider.TextImgProvider import text_img_generator
+from utils.decorator import count_time
 
 
 class Block:
@@ -153,6 +154,7 @@ class Layout:
             block_group = BlockGroup(bg_img, group_box)
             self.block_group_list.append(block_group)
 
+    @count_time(tag="自动生成文字贴图")
     def gen(self):
         """
         开始自动生成

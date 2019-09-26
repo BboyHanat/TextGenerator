@@ -27,6 +27,7 @@ def pick(target: Strategy = None) -> Strategy:
     :param target:
     :return:
     """
+    # todo: 更智能的策略选择
     if target:
         strategy = target
     else:
