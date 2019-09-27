@@ -32,6 +32,10 @@ gen_mode_conf:
 
 text_img_conf:
   img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
+  gen_random_image: 1 # 1:True , 0:False
+  gen_image_width: 1280
+  gen_image_height: 1080
+
 
 
 

@@ -83,12 +83,14 @@ class TextProvider:
                  random_choice=False
                  ):
         """
-        init TextProvider object
-        :param chinese_corpus_path:
-        :param english_corpus_path:
-        :param random_character_path:
-        :param specific_scene_character_path:
-        :param characters_len_range:
+
+        :param chinese_corpus_path: str
+        :param english_corpus_path: str
+        :param random_character_path: str
+        :param specific_scene_character_path: str
+        :param characters_len_range: (2,15)
+        :param gen_probability: [0.5,0.3,0.1,0.1]
+        :param random_choice: False
         """
         self._chinese_corpus_path = chinese_corpus_path
         self._english_corpus_path = english_corpus_path

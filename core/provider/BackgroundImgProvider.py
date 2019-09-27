@@ -140,6 +140,15 @@ class BackgroundImgProvider(object):
                  g_width_range=(1000, 1500),
                  g_height_range=(1000, 1500)
                  ):
+        """
+
+        :param bg_img_dir:
+        :param gen_probability: If gen_random_image is True,  gen_probability like [0.8,0.15,0.05], else,gen_probability like [1,0,0]. gen_probability list sum must be 1.
+        :param img_format: list ['jpg','JPG','PNG'...]
+        :param gen_random_image: True or False, If True, this generator will generate random image, like smooth gauss image or quasicrystal image.
+        :param g_width_range: generate image width
+        :param g_height_range: generate image height
+        """
         self._bg_img_dir = bg_img_dir
         self._gen_probability = gen_probability
         self._gen_random_image = gen_random_image
