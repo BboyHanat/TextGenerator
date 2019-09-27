@@ -1,11 +1,11 @@
 path_conf:
   # text provider config
-  chinese_corpus_path: ""
-  english_corpus_path: ""
-  random_character_path: ""
-  specific_scene_character_path: ""
+  chinese_corpus_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/sentence.txt"
+  english_corpus_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/word-en.txt"
+  random_character_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/chinese_synthetic.txt"
+  specific_scene_character_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/common.txt"
   # image provider config
-  bgimage_dir: ""
+  bgimage_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img"
   # text render config
   font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
   text_img_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img"
@@ -36,6 +36,11 @@ text_img_conf:
   gen_image_width: 1280
   gen_image_height: 1080
 
+
+text_gen_conf:
+  characters_len_range: (2,20)
+  gen_probability: [0.25,0.25,0.25,0.25]
+  random_choice: False
 
 
 

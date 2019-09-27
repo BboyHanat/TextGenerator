@@ -4,10 +4,11 @@ import time
 
 class Random(object):
     @staticmethod
-    def random_choice(prob_list: list):
+    def random_choice(prob_list: list, seed=None):
         """
         random choice a probability range
         :param prob_list:
+        :param seed:
         :return:
         """
 
@@ -20,7 +21,6 @@ class Random(object):
             seek += p
 
         while True:
-            seed = time.time()
             random.seed(seed)
             prob = random.uniform(0, 1)
             for index, p_range in enumerate(prob_range_list):

@@ -1,11 +1,11 @@
-from core.provider.TextImgProvider import TextImg, CharImg
-from typing import List
+from core.provider.TextImgProvider import TextImg
 from PIL import Image, ImageDraw
 from core.constant import const
 from core.provider.textimg.layout.strategy import Strategy
-from core import text_img_provider
-from core.provider.TextImgProvider import text_img_generator
+from core.provider.TextProvider import TextProvider
+from core.provider.TextImgProvider import TextImgProvider
 from utils.decorator import count_time
+from utils import log
 
 
 class Block:
@@ -39,9 +39,6 @@ class Block:
         inner_y = outer_y + self.margin
         self.locate_by_inner(inner_x, inner_y)
 
-        # print('outer box >')
-        # print(self.outer_box)
-
     def get_img(self) -> Image.Image:
         return self.img
 
@@ -65,12 +62,15 @@ class TextBlock(Block):
 
 
 class BlockGroup:
-    def __init__(self, bg_img: Image.Image, group_box):
+    def __init__(self, bg_img: Image.Image, group_box, text_provider: TextProvider = None, text_img_provider=None):
         self.bg_img = bg_img
         self.group_box = group_box
         self.block_list = []
         self.width = group_box[2] - group_box[0]
         self.height = group_box[3] - group_box[1]
+
+        self.text_provider = text_provider
+        self.text_img_provider = text_img_provider
 
     def auto_append_block(self):
         """
@@ -81,26 +81,36 @@ class BlockGroup:
         strategy = sc.pick()
         r = True
         while r:
-            # todo: next block 选择器逻辑开发
             block = self._gen_block()
-            r = strategy.logic(self, block)
-            if r:
-                self.block_list.append(block)
-                # todo: crop文本贴图的逻辑可在此处完善
+            if block:
+                r = strategy.logic(self, block)
+                if r:
+                    self.block_list.append(block)
+                    if isinstance(block, TextBlock):
+                        log.info("add text on box:[{group_box}] [{strategy}] > {text}".format(
+                            group_box=self.group_box,
+                            strategy=strategy.name(),
+                            text=block.text_img.text))
+                    # todo: crop文本贴图的逻辑可在此处完善
+            else:
+                r = False
 
     def _gen_block(self):
         """
         生成一个block
         :return:
         """
-        fp = text_img_provider.next_font_path()
-        text_img = text_img_generator.gen_text_img(text_img_provider, "hello world",
+        from core.provider.TextImgProvider import text_img_generator
+
+        text = "".join(self.text_provider.gen.__next__())
+        # todo: 生成文字贴图
+        fp = self.text_img_provider.next_font_path()
+        text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
                                                    font_size=28,
                                                    color=const.COLOR_BLUE,
                                                    font_path=fp)
 
         text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=10)
-        print(text_block.outer_size)
         return text_block
 
     def preview(self, draw_rect=False):
@@ -145,13 +155,16 @@ class BlockGroup:
 
 
 class Layout:
-    def __init__(self, bg_img: Image.Image, group_box_list: list = []):
+    def __init__(self, bg_img: Image.Image, group_box_list: list = [], text_provider: TextProvider = None,
+                 text_img_provider: TextImgProvider = None):
         self.bg_img = bg_img
         self.group_box_list = group_box_list
+        self.text_provider = text_provider
+        self.text_img_provider = text_img_provider
 
         self.block_group_list = []
         for group_box in self.group_box_list:
-            block_group = BlockGroup(bg_img, group_box)
+            block_group = BlockGroup(bg_img, group_box, self.text_provider, self.text_img_provider)
             self.block_group_list.append(block_group)
 
     @count_time(tag="自动生成文字贴图")
@@ -160,7 +173,8 @@ class Layout:
         开始自动生成
         :return:
         """
-        for block_group in self.block_group_list:
+        for index, block_group in enumerate(self.block_group_list):
+            log.info("start append block ---- {index} ----".format(index=index))
             block_group.auto_append_block()
 
     def show(self, draw_rect=False):
@@ -177,9 +191,24 @@ class Layout:
             block_group.render(draw_rect=draw_rect, on_origin=True)
 
 
+def layout_factory(bg_img: Image.Image, group_box_list: list, text_provider: TextProvider,
+                   text_img_provider: TextImgProvider) -> Layout:
+    """
+    生成layout的工厂方法
+    :param bg_img:
+    :param group_box_list:
+    :param text_provider:
+    :param text_img_provider:
+    :return:
+    """
+    layout = Layout(bg_img=bg_img, group_box_list=group_box_list, text_provider=text_provider,
+                    text_img_provider=text_img_provider)
+    return layout
+
+
 if __name__ == '__main__':
-    from core import text_img_provider
-    from core.provider.TextImgProvider import text_img_generator
+    # from core import text_img_provider
+    # from core.provider.TextImgProvider import text_img_generator
 
     bg_img_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img/spider_man.jpeg"
 

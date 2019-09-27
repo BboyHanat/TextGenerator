@@ -15,6 +15,9 @@ class RandomPasteStrategy(Strategy):
         gbr = block_group.group_box[2]
         gbb = block_group.group_box[3]
 
+        if gbr - next_block.outer_width < gbl or gbb - next_block.outer_height < gbt:
+            return False
+
         x = Random.random_int(gbl, gbr - next_block.outer_width, seed=self.seed)
         y = Random.random_int(gbt, gbb - next_block.outer_height, seed=self.seed)
 

@@ -1,9 +1,25 @@
+def check_two_box_is_overlap(a_box, b_box):
+    """
+    检查两个区域是否有交集
+    :param a_box:
+    :param b_box:
+    :return:
+    """
+    in_h = min(a_box[2], b_box[2]) - max(a_box[0], b_box[0])
+    in_w = min(a_box[3], b_box[3]) - max(a_box[1], b_box[1])
+    inter = 0 if in_h < 0 or in_w < 0 else in_h * in_w
+    return inter > 0
+
+
 class Strategy:
 
     def __init__(self):
         pass
 
     def __repr__(self):
+        return str(self.__class__.__name__)
+
+    def name(self):
         return str(self.__class__.__name__)
 
     def logic(self, block_group, next_block) -> bool:
@@ -37,10 +53,7 @@ class Strategy:
         """
         a_box = block_a.outer_box
         b_box = block_b.outer_box
-        in_h = min(a_box[2], b_box[2]) - max(a_box[0], b_box[0])
-        in_w = min(a_box[3], b_box[3]) - max(a_box[1], b_box[1])
-        inter = 0 if in_h < 0 or in_w < 0 else in_h * in_w
-        return inter > 0
+        return check_two_box_is_overlap(a_box, b_box)
 
     @staticmethod
     def check_has_overlap(block_group, block):

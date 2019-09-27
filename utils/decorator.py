@@ -27,10 +27,11 @@ def count_time(tag=""):
     def ctime(func):
         def wrapper(*args, **kwargs):
             tic = time.time()  # 程序开始时间
-            func(*args, **kwargs)
+            r = func(*args, **kwargs)
             toc = time.time()  # 程序结束时间
             cost = toc - tic
-            log.info("{tag} {func_name} 耗时 > {cost}".format(tag=tag, func_name=func.__name__, cost=cost))
+            log.info("[ cost_time ] {tag} {func_name} > {cost}".format(tag=tag, func_name=func.__name__, cost=cost))
+            return r
 
         return wrapper
 

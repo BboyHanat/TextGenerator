@@ -1,5 +1,5 @@
 """
-Name : textProvider.py
+Name : TextProvider.py
 Author  : Hanat
 Contect : hanati@tezign.com
 Time    : 2019-09-18 13:53

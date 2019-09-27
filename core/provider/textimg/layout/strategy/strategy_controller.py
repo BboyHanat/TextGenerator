@@ -32,5 +32,4 @@ def pick(target: Strategy = None) -> Strategy:
         strategy = target
     else:
         strategy = Random.random_choice_list(strategy_list)
-    print(strategy)
     return strategy
