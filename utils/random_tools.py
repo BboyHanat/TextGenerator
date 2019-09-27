@@ -51,6 +51,11 @@ class Random(object):
         return random.randint(low, high)
 
     @staticmethod
+    def random_bool(seed=None):
+        random.seed(seed)
+        return bool(random.getrandbits(1))
+
+    @staticmethod
     def random_float(low: float, high: float):
         """
         get a float number in range (low, high)

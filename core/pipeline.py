@@ -23,7 +23,7 @@ class Pipeline:
             text_img_provider=text_img_provider
         )
         layout.gen()
-        layout.show(draw_rect=True)
+        layout.show(draw_rect=False)
 
     @staticmethod
     def test_gen_group_box(bg_img):
@@ -68,8 +68,6 @@ class Pipeline:
         np_img = np_img[..., ::-1]
         img = Image.fromarray(np_img, mode='RGB')
         return img
-
-    pass
 
 
 pipeline = Pipeline()

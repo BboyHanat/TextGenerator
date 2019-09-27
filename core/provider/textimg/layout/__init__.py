@@ -6,6 +6,9 @@ from core.provider.TextProvider import TextProvider
 from core.provider.TextImgProvider import TextImgProvider
 from utils.decorator import count_time
 from utils import log
+from utils.random_tools import Random
+import numpy as np
+import cv2
 
 
 class Block:
@@ -68,6 +71,8 @@ class BlockGroup:
         self.block_list = []
         self.width = group_box[2] - group_box[0]
         self.height = group_box[3] - group_box[1]
+        self.bg_width = self.bg_img.width
+        self.bg_height = self.bg_img.height
 
         self.text_provider = text_provider
         self.text_img_provider = text_img_provider
@@ -79,9 +84,11 @@ class BlockGroup:
         """
         from core.provider.textimg.layout.strategy import strategy_controller as sc
         strategy = sc.pick()
-        r = True
-        while r:
-            block = self._gen_block()
+        # 尝试生成3次 提高贴图成功率
+        retry_times = 3
+        while retry_times > 0:
+            block = self._gen_block(strategy)
+            r = False
             if block:
                 r = strategy.logic(self, block)
                 if r:
@@ -92,25 +99,43 @@ class BlockGroup:
                             strategy=strategy.name(),
                             text=block.text_img.text))
                     # todo: crop文本贴图的逻辑可在此处完善
-            else:
-                r = False
+            if not r:
+                retry_times -= 1
 
-    def _gen_block(self):
+    def _gen_block(self, strategy: Strategy):
         """
         生成一个block
         :return:
         """
-        from core.provider.TextImgProvider import text_img_generator
+        from core.provider.TextImgProvider import text_img_generator, TYPE_ORIENTATION_HORIZONTAL, \
+            TYPE_ORIENTATION_VERTICAL, TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C
+        from core.provider.textimg.layout.strategy.HorizontalStrategy import HorizontalStrategy
+        from core.provider.textimg.layout.strategy.VerticalStrategy import VerticalStrategy
 
         text = "".join(self.text_provider.gen.__next__())
-        # todo: 生成文字贴图
         fp = self.text_img_provider.next_font_path()
+
+        if isinstance(strategy, HorizontalStrategy):
+            orientation = TYPE_ORIENTATION_VERTICAL
+        elif isinstance(strategy, VerticalStrategy):
+            orientation = TYPE_ORIENTATION_HORIZONTAL
+        else:
+            orientation = Random.random_choice_list([TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL])
+        align = Random.random_choice_list([TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C])
+
+        v = min(self.width, self.height)
+        font_size = Random.random_int(v // 30, v // 10)
+
+        rotate_angle = Random.random_int(-8, 8)
+
         text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
-                                                   font_size=28,
-                                                   color=const.COLOR_BLUE,
+                                                   font_size=font_size,
+                                                   color=self.get_fontcolor(),
+                                                   orientation=orientation,
+                                                   align_mode=align,
                                                    font_path=fp)
 
-        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=10)
+        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle)
         return text_block
 
     def preview(self, draw_rect=False):
@@ -152,6 +177,31 @@ class BlockGroup:
                            fill=const.COLOR_HALF_TRANSPARENT)
         sub_img = bg_img.crop(self.group_box)
         return sub_img
+
+    def get_fontcolor(self):
+        """
+        get font color by mean
+        :param image:
+        :return:
+        """
+        image = np.asarray(self.bg_img)
+        lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2Lab)
+
+        bg = lab_image[:, :, 0]
+        l_mean = np.mean(bg)
+
+        new_l = Random.random_int(0, 127 - 80) if l_mean > 127 else Random.random_int(127 + 80, 255)
+        new_a = Random.random_int(0, 255)
+        new_b = Random.random_int(0, 255)
+
+        lab_rgb = np.asarray([[[new_l, new_a, new_b]]], np.uint8)
+        rbg = cv2.cvtColor(lab_rgb, cv2.COLOR_Lab2RGB)
+
+        r = rbg[0, 0, 0]
+        g = rbg[0, 0, 1]
+        b = rbg[0, 0, 2]
+
+        return (r, g, b, 255)
 
 
 class Layout:
