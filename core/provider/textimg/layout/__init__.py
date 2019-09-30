@@ -9,6 +9,9 @@ from utils import log
 from utils.random_tools import Random
 import numpy as np
 import cv2
+import os
+import hashlib
+import json
 
 
 class Block:
@@ -30,6 +33,9 @@ class Block:
 
         self.locate_by_inner(inner_x=inner_x, inner_y=inner_y)
 
+    def get_data(self):
+        pass
+
     def locate_by_inner(self, inner_x, inner_y):
         self.inner_box = (inner_x, inner_y, inner_x + self.img.width, inner_y + self.img.height)
         self.outer_box = (inner_x - self.margin,
@@ -49,6 +55,9 @@ class Block:
         r, g, b, a = self.get_img().split()
         return a
 
+    def crop_self(self, bg_img: Image.Image):
+        return bg_img.crop(self.inner_box)
+
 
 class TextBlock(Block):
     def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0):
@@ -62,6 +71,9 @@ class TextBlock(Block):
 
     def get_img(self) -> Image.Image:
         return super().get_img()
+
+    def get_data(self):
+        return str(self.text_img.text)
 
 
 class BlockGroup:
@@ -98,7 +110,6 @@ class BlockGroup:
                             group_box=self.group_box,
                             strategy=strategy.name(),
                             text=block.text_img.text))
-                    # todo: crop文本贴图的逻辑可在此处完善
             if not r:
                 retry_times -= 1
 
@@ -205,9 +216,14 @@ class BlockGroup:
 
 
 class Layout:
-    def __init__(self, bg_img: Image.Image, group_box_list: list = [], text_provider: TextProvider = None,
+    def __init__(self,
+                 bg_img: Image.Image,
+                 out_put_dir: str,
+                 group_box_list: list = [],
+                 text_provider: TextProvider = None,
                  text_img_provider: TextImgProvider = None):
         self.bg_img = bg_img
+        self.out_put_dir = out_put_dir
         self.group_box_list = group_box_list
         self.text_provider = text_provider
         self.text_img_provider = text_img_provider
@@ -216,6 +232,17 @@ class Layout:
         for group_box in self.group_box_list:
             block_group = BlockGroup(bg_img, group_box, self.text_provider, self.text_img_provider)
             self.block_group_list.append(block_group)
+
+    def get_all_block_list(self):
+        """
+        获取所有的block
+        :return:
+        """
+        all_block_list = []
+        for block_group in self.block_group_list:
+            block_list = block_group.block_list
+            all_block_list.extend(block_list)
+        return all_block_list
 
     @count_time(tag="自动生成文字贴图")
     def gen(self):
@@ -226,6 +253,57 @@ class Layout:
         for index, block_group in enumerate(self.block_group_list):
             log.info("start append block ---- {index} ----".format(index=index))
             block_group.auto_append_block()
+        self.render()
+
+    @count_time(tag="区块片收集")
+    def collect_block_fragment(self):
+        fragment_info_list = []
+        for block in self.get_all_block_list():
+            fragment_img = block.crop_self(self.bg_img)
+            fragment_box = block.inner_box
+            fragment_data = block.get_data()
+            item = {
+                "img": fragment_img,
+                "box": fragment_box,
+                "data": fragment_data,
+                "type": str(block.__class__.__name__)
+            }
+            fragment_info_list.append(item)
+        return fragment_info_list
+
+    @count_time("dump layout info")
+    def dump(self):
+        result = {}
+        img_dir = os.path.join(self.out_put_dir, "img")
+        data_dir = os.path.join(self.out_put_dir, "data")
+        os.makedirs(img_dir, exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
+
+        name = hashlib.sha1(self.bg_img.tobytes()).hexdigest()
+
+        bg_name = "background_" + name + ".jpg"
+        bg_img_path = os.path.join(img_dir, bg_name)
+        with open(bg_img_path, 'wb') as f:
+            self.bg_img.save(f)
+        result['bg_img_path'] = bg_img_path
+        result['fragment'] = []
+
+        for index, fragment in enumerate(self.collect_block_fragment()):
+            fragment_img = fragment['img']
+            fragment_img_name = "fragment_" + name + str(index) + ".jpg"
+            fragment_img_path = os.path.join(img_dir, fragment_img_name)
+            with open(fragment_img_path, 'wb') as f:
+                fragment_img.save(f)
+            fragment.pop("img")
+            fragment['img_path'] = fragment_img_path
+
+            result['fragment'].append(fragment)
+
+        json_file_name = name + ".json"
+        with open(os.path.join(data_dir, json_file_name), 'w', encoding='utf-8') as f:
+            json.dump(result, f)
+
+        log.info("{name} dump success! ".format(name=name))
 
     def show(self, draw_rect=False):
         self.render(draw_rect=draw_rect)
@@ -241,17 +319,22 @@ class Layout:
             block_group.render(draw_rect=draw_rect, on_origin=True)
 
 
-def layout_factory(bg_img: Image.Image, group_box_list: list, text_provider: TextProvider,
-                   text_img_provider: TextImgProvider) -> Layout:
+def layout_factory(bg_img: Image.Image,
+                   group_box_list: list,
+                   text_provider: TextProvider,
+                   text_img_provider: TextImgProvider,
+                   out_put_dir,
+                   ) -> Layout:
     """
     生成layout的工厂方法
     :param bg_img:
     :param group_box_list:
     :param text_provider:
     :param text_img_provider:
+    :param out_put_dir:
     :return:
     """
-    layout = Layout(bg_img=bg_img, group_box_list=group_box_list, text_provider=text_provider,
+    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list, text_provider=text_provider,
                     text_img_provider=text_img_provider)
     return layout
 

@@ -1,9 +1,11 @@
 from core.provider.textimg.layout import layout_factory
 
-from core import text_img_provider, background_img_provider, text_provider
+from core import text_img_provider, background_img_provider, text_provider, conf
 from PIL import Image
 from utils.decorator import count_time
 from utils import log
+
+out_put_dir = conf['layout_gen_conf']['out_put_dir']
 
 
 class Pipeline:
@@ -20,10 +22,12 @@ class Pipeline:
             bg_img=bg_img,
             group_box_list=group_box_list,
             text_provider=text_provider,
-            text_img_provider=text_img_provider
+            text_img_provider=text_img_provider,
+            out_put_dir=out_put_dir
         )
         layout.gen()
-        layout.show(draw_rect=False)
+        layout.dump()
+        # layout.show(draw_rect=False)
 
     @staticmethod
     def test_gen_group_box(bg_img):

@@ -42,5 +42,8 @@ text_gen_conf:
   gen_probability: [0.25,0.25,0.25,0.25]
   random_choice: False
 
+layout_gen_conf:
+  out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/layout
+
 
 

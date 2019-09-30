@@ -28,7 +28,7 @@ def load_from_config():
     background_img_provider = BackgroundImgProvider(
         bg_img_dir=conf['path_conf']['bgimage_dir'],
         # fixme: 需要修改为从配置文件加载
-        gen_probability=[0, 0, 1],
+        gen_probability=[0.3, 0.3, 0.4],
         img_format=conf['text_img_conf']['img_can_load_format'],
         gen_random_image=conf['text_img_conf']['gen_random_image']
     )
