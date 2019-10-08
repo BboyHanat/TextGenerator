@@ -6,7 +6,7 @@ from utils import log
 class Pipeline:
 
     def start(self):
-        # gen_all_pic()
+        gen_all_pic()
         gen_label_data()
 
 

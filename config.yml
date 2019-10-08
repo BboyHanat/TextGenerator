@@ -36,6 +36,8 @@ text_bg_img_conf:
 
 text_img_conf:
   rotate_angle_range: (-8, 8)
+  char_border_width: 0
+  char_border_color: (255,255,0,255)
 
 
 text_gen_conf:

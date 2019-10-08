@@ -125,6 +125,8 @@ class BlockGroup:
             TYPE_ORIENTATION_VERTICAL, TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C
         from core.provider.textimg.layout.strategy.HorizontalStrategy import HorizontalStrategy
         from core.provider.textimg.layout.strategy.VerticalStrategy import VerticalStrategy
+        from core.provider.textimg.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
+        from core.provider.textimg.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
         from core.provider.textimg.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
 
         text = "".join(self.text_provider.gen.__next__())
@@ -134,6 +136,10 @@ class BlockGroup:
             orientation = TYPE_ORIENTATION_VERTICAL
         elif isinstance(strategy, VerticalStrategy):
             orientation = TYPE_ORIENTATION_HORIZONTAL
+        elif isinstance(strategy, HorizontalFlowStrategy):
+            orientation = TYPE_ORIENTATION_HORIZONTAL
+        elif isinstance(strategy, VerticalFlowStrategy):
+            orientation = TYPE_ORIENTATION_VERTICAL
         elif isinstance(strategy, CustomizationStrategy1):
             if self.block_list:
                 orientation = TYPE_ORIENTATION_HORIZONTAL
@@ -145,14 +151,19 @@ class BlockGroup:
         align = Random.random_choice_list([TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C])
 
         v = min(self.width, self.height)
-        font_size = Random.random_int(v // 30, v // 10)
+        font_size = Random.random_int(v // 20, v // 10)
 
         # 文本贴图旋转角度
         rotate_angle_range = (eval(conf['text_img_conf']['rotate_angle_range']))
         rotate_angle = Random.random_int(rotate_angle_range[0], rotate_angle_range[1])
 
+        char_border_width = conf['text_img_conf']['char_border_width']
+        char_border_color = eval(conf['text_img_conf']['char_border_color'])
+
         text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
                                                    font_size=font_size,
+                                                   border_width=char_border_width,
+                                                   border_color=char_border_color,
                                                    color=self.get_fontcolor(),
                                                    orientation=orientation,
                                                    align_mode=align,
