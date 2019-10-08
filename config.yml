@@ -23,8 +23,6 @@ random_conf:
   bgimage_from_gauss_probability: 0.15
   bgimage_from_quasicrystal_probability: 0.05
 
-
-
 gen_mode_conf:
   ocr_data_gen: 1
   detect_data_gen: 1
@@ -46,7 +44,8 @@ text_gen_conf:
   random_choice: False
 
 layout_gen_conf:
-  out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/layout
+  out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output
+  gen_count: 100
 
 # layout strategy
 layout_strategy_conf:

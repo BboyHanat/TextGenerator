@@ -285,29 +285,35 @@ class Layout:
 
     @count_time("dump layout info")
     def dump(self):
+        from core.base import get_data_dir, get_pic_dir, get_fragment_dir
+
         result = {}
-        img_dir = os.path.join(self.out_put_dir, "img")
-        data_dir = os.path.join(self.out_put_dir, "data")
-        os.makedirs(img_dir, exist_ok=True)
+
+        pic_dir = get_pic_dir(self.out_put_dir)
+        fragment_dir = get_fragment_dir(self.out_put_dir)
+        data_dir = get_data_dir(self.out_put_dir)
+
+        os.makedirs(pic_dir, exist_ok=True)
+        os.makedirs(fragment_dir, exist_ok=True)
         os.makedirs(data_dir, exist_ok=True)
 
         name = hashlib.sha1(self.bg_img.tobytes()).hexdigest()
 
-        bg_name = "background_" + name + ".jpg"
-        bg_img_path = os.path.join(img_dir, bg_name)
-        with open(bg_img_path, 'wb') as f:
+        pic_name = "pic_" + name + ".jpg"
+        pic_path = os.path.join(pic_dir, pic_name)
+        with open(pic_path, 'wb') as f:
             self.bg_img.save(f)
-        result['bg_img_path'] = bg_img_path
+        result['pic_name'] = pic_name
         result['fragment'] = []
 
         for index, fragment in enumerate(self.collect_block_fragment()):
             fragment_img = fragment['img']
             fragment_img_name = "fragment_" + name + str(index) + ".jpg"
-            fragment_img_path = os.path.join(img_dir, fragment_img_name)
+            fragment_img_path = os.path.join(fragment_dir, fragment_img_name)
             with open(fragment_img_path, 'wb') as f:
                 fragment_img.save(f)
             fragment.pop("img")
-            fragment['img_path'] = fragment_img_path
+            fragment['fragment_name'] = fragment_img_name
 
             result['fragment'].append(fragment)
 
