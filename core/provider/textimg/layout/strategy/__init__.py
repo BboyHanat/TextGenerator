@@ -11,6 +11,18 @@ def check_two_box_is_overlap(a_box, b_box):
     return inter > 0
 
 
+def is_horizontal(block):
+    return block.inner_width > block.inner_height
+
+
+def is_vertical(block):
+    return block.inner_width < block.inner_height
+
+
+def is_square(block):
+    return block.inner_width == block.inner_height
+
+
 class Strategy:
 
     def __init__(self):
