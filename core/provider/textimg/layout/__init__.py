@@ -89,14 +89,13 @@ class BlockGroup:
         self.text_provider = text_provider
         self.text_img_provider = text_img_provider
 
-    def auto_append_block(self, target_strategy=None):
+    def auto_append_block(self):
         """
         自动添加block
-        :param target_strategy
         :return:
         """
         from core.provider.textimg.layout.strategy import strategy_controller as sc
-        strategy = sc.pick(target_strategy)
+        strategy = sc.pick()
         # 尝试生成3次 提高贴图成功率
         retry_times = 3
         while retry_times > 0:
@@ -107,10 +106,12 @@ class BlockGroup:
                 if r:
                     self.block_list.append(block)
                     if isinstance(block, TextBlock):
-                        log.info("add text on box:[{group_box}] [{strategy}] > {text}".format(
+                        log.info("add text on box:[{group_box}] [{strategy}] [{orientation}] > {text}".format(
                             group_box=self.group_box,
                             strategy=strategy.name(),
-                            text=block.text_img.text))
+                            text=block.text_img.text,
+                            orientation="h" if block.text_img.orientation == 0 else "v"
+                        ))
             if not r:
                 retry_times -= 1
 
@@ -138,7 +139,8 @@ class BlockGroup:
             else:
                 orientation = TYPE_ORIENTATION_VERTICAL
         else:
-            orientation = Random.random_choice_list([TYPE_ORIENTATION_VERTICAL])
+            orientation = Random.random_choice_list(
+                [TYPE_ORIENTATION_VERTICAL, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_HORIZONTAL])
         align = Random.random_choice_list([TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C])
 
         v = min(self.width, self.height)
@@ -252,15 +254,14 @@ class Layout:
         return all_block_list
 
     @count_time(tag="自动生成文字贴图")
-    def gen(self, target_strategy=None):
+    def gen(self):
         """
         开始自动生成
-        :param target_strategy: 目标策略
         :return:
         """
         for index, block_group in enumerate(self.block_group_list):
             log.info("start append block ---- {index} ----".format(index=index))
-            block_group.auto_append_block(target_strategy=target_strategy)
+            block_group.auto_append_block()
         self.render()
 
     @count_time(tag="区块片收集")

@@ -27,7 +27,8 @@ class Pipeline:
         )
         layout.gen()
         layout.dump()
-        # layout.show(draw_rect=False)
+        layout.show(draw_rect=True)
+        pass
 
     @staticmethod
     def test_gen_group_box(bg_img):

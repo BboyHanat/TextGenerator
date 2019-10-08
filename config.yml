@@ -45,5 +45,14 @@ text_gen_conf:
 layout_gen_conf:
   out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/layout
 
+# layout strategy
+layout_strategy_conf:
+  HorizontalStrategy: 0.3
+  VerticalStrategy: 0.1
+  HorizontalFlowStrategy: 0.5
+  VerticalFlowStrategy: 0
+  RandomPasteStrategy: 0
+  CustomizationStrategy1: 0.1
+
 
 

@@ -5,31 +5,46 @@ from core.provider.textimg.layout.strategy.VerticalStrategy import VerticalStrat
 from core.provider.textimg.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
 from core.provider.textimg.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
 from core.provider.textimg.layout.strategy.RandomPasteStrategy import RandomPasteStrategy
+from core.provider.textimg.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
+from core import conf
+from utils import log
 
 horizontal_strategy = HorizontalStrategy()
 vertical_strategy = VerticalStrategy()
 horizontal_flow_strategy = HorizontalFlowStrategy()
 vertical_flow_strategy = VerticalFlowStrategy()
 random_paste_strategy = RandomPasteStrategy()
+customization_strategy_1 = CustomizationStrategy1()
 
 strategy_list = [
     horizontal_strategy,
     vertical_strategy,
     horizontal_flow_strategy,
     vertical_flow_strategy,
-    random_paste_strategy
+    random_paste_strategy,
+    customization_strategy_1
 ]
 
 
-def pick(target: Strategy = None) -> Strategy:
+def get_strategy_by_name(name):
+    for strategy in strategy_list:
+        if strategy.__class__.__name__ == name:
+            return strategy
+    return None
+
+
+def pick() -> Strategy:
     """
     选择一个策略
-    :param target:
     :return:
     """
-    # todo: 更智能的策略选择
-    if target:
-        strategy = target
-    else:
-        strategy = Random.random_choice_list(strategy_list)
+    layout_strategy_conf = dict(conf['layout_strategy_conf'])
+    strategy_list = list(layout_strategy_conf.keys())
+    strategy_values = list(layout_strategy_conf.values())
+    index = Random.random_choice(list(strategy_values))
+
+    strategy_name = strategy_list[index]
+    strategy = get_strategy_by_name(strategy_name)
+
+    log.info("pick strategy: {strategy}".format(strategy=strategy_name))
     return strategy
