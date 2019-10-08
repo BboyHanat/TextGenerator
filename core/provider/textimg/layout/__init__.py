@@ -37,6 +37,13 @@ class Block:
     def get_data(self):
         pass
 
+    def get_orientation(self):
+        from core.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL
+        if self.inner_width > self.inner_height:
+            return TYPE_ORIENTATION_HORIZONTAL
+        else:
+            return TYPE_ORIENTATION_VERTICAL
+
     def locate_by_inner(self, inner_x, inner_y):
         self.inner_box = (inner_x, inner_y, inner_x + self.img.width, inner_y + self.img.height)
         self.outer_box = (inner_x - self.margin,
@@ -75,6 +82,9 @@ class TextBlock(Block):
 
     def get_data(self):
         return str(self.text_img.text)
+
+    def get_orientation(self):
+        return self.text_img.orientation
 
 
 class BlockGroup:
@@ -280,15 +290,19 @@ class Layout:
 
     @count_time(tag="区块片收集")
     def collect_block_fragment(self):
+        from core.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL
+
         fragment_info_list = []
         for block in self.get_all_block_list():
             fragment_img = block.crop_self(self.bg_img)
             fragment_box = block.inner_box
             fragment_data = block.get_data()
+            orientation = block.get_orientation()
             item = {
                 "img": fragment_img,
                 "box": fragment_box,
                 "data": fragment_data,
+                "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
                 "type": str(block.__class__.__name__)
             }
             fragment_info_list.append(item)
@@ -315,6 +329,8 @@ class Layout:
         with open(pic_path, 'wb') as f:
             self.bg_img.save(f)
         result['pic_name'] = pic_name
+        result['width'] = self.bg_img.width
+        result['height'] = self.bg_img.height
         result['fragment'] = []
 
         for index, fragment in enumerate(self.collect_block_fragment()):
