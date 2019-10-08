@@ -29,8 +29,8 @@ def load_from_config():
         bg_img_dir=conf['path_conf']['bgimage_dir'],
         # fixme: 需要修改为从配置文件加载
         gen_probability=[0.3, 0.3, 0.4],
-        img_format=conf['text_img_conf']['img_can_load_format'],
-        gen_random_image=conf['text_img_conf']['gen_random_image']
+        img_format=conf['text_bg_img_conf']['img_can_load_format'],
+        gen_random_image=conf['text_bg_img_conf']['gen_random_image']
     )
 
     text_provider = TextProvider(

@@ -4,6 +4,7 @@ from core.constant import const
 from core.provider.textimg.layout.strategy import Strategy
 from core.provider.TextProvider import TextProvider
 from core.provider.TextImgProvider import TextImgProvider
+from core import conf
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
@@ -146,7 +147,9 @@ class BlockGroup:
         v = min(self.width, self.height)
         font_size = Random.random_int(v // 30, v // 10)
 
-        rotate_angle = Random.random_int(-8, 8)
+        # 文本贴图旋转角度
+        rotate_angle_range = (eval(conf['text_img_conf']['rotate_angle_range']))
+        rotate_angle = Random.random_int(rotate_angle_range[0], rotate_angle_range[1])
 
         text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
                                                    font_size=font_size,

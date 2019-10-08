@@ -30,11 +30,14 @@ gen_mode_conf:
   detect_data_gen: 1
   sementic_data_gen: 0
 
-text_img_conf:
+text_bg_img_conf:
   img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
   gen_random_image: 1 # 1:True , 0:False
   gen_image_width: 1280
   gen_image_height: 1080
+
+text_img_conf:
+  rotate_angle_range: (-8, 8)
 
 
 text_gen_conf:
