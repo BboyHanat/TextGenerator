@@ -58,5 +58,8 @@ layout_strategy_conf:
   RandomPasteStrategy: 0
   CustomizationStrategy1: 0.1
 
+library_conf:
+  lib_path: libs/libImgSegmentation.dylib
+
 
 
