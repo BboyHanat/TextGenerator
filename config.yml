@@ -51,11 +51,11 @@ layout_gen_conf:
 
 # layout strategy
 layout_strategy_conf:
-  HorizontalStrategy: 0.3
-  VerticalStrategy: 0.1
-  HorizontalFlowStrategy: 0.5
-  VerticalFlowStrategy: 0
-  RandomPasteStrategy: 0
+  HorizontalStrategy: 0.2
+  VerticalStrategy: 0.2
+  HorizontalFlowStrategy: 0.2
+  VerticalFlowStrategy: 0.2
+  RandomPasteStrategy: 0.1
   CustomizationStrategy1: 0.1
 
 library_conf:
