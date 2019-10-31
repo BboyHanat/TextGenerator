@@ -67,7 +67,7 @@ class SmoothAreaProvider(object):
         :param image:
         :return:
         """
-        assert type(image) == np.ndarray
+        assert type(image) != np.ndarray
         shape = image.shape
         if len(shape) == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
