@@ -9,6 +9,7 @@ import os
 import json
 import numpy as np
 
+
 def get_pic_dir(out_put_dir):
     img_dir = os.path.join(out_put_dir, "img")
     pic_dir = os.path.join(img_dir, "pic")

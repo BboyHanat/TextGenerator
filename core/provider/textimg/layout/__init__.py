@@ -228,24 +228,30 @@ class BlockGroup:
         :param image:
         :return:
         """
-        image = np.asarray(self.bg_img)
-        lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2Lab)
+        use_char_common_color_probability = conf['text_img_conf']['use_char_common_color_probability']
+        char_common_color_list = conf['text_img_conf']['char_common_color_list']
 
-        bg = lab_image[:, :, 0]
-        l_mean = np.mean(bg)
+        if Random.random_float(0, 1) <= use_char_common_color_probability and char_common_color_list:
+            return eval(Random.random_choice_list(char_common_color_list))
+        else:
+            image = np.asarray(self.bg_img)
+            lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2Lab)
 
-        new_l = Random.random_int(0, 127 - 80) if l_mean > 127 else Random.random_int(127 + 80, 255)
-        new_a = Random.random_int(0, 255)
-        new_b = Random.random_int(0, 255)
+            bg = lab_image[:, :, 0]
+            l_mean = np.mean(bg)
 
-        lab_rgb = np.asarray([[[new_l, new_a, new_b]]], np.uint8)
-        rbg = cv2.cvtColor(lab_rgb, cv2.COLOR_Lab2RGB)
+            new_l = Random.random_int(0, 127 - 80) if l_mean > 127 else Random.random_int(127 + 80, 255)
+            new_a = Random.random_int(0, 255)
+            new_b = Random.random_int(0, 255)
 
-        r = rbg[0, 0, 0]
-        g = rbg[0, 0, 1]
-        b = rbg[0, 0, 2]
+            lab_rgb = np.asarray([[[new_l, new_a, new_b]]], np.uint8)
+            rbg = cv2.cvtColor(lab_rgb, cv2.COLOR_Lab2RGB)
 
-        return (r, g, b, 255)
+            r = rbg[0, 0, 0]
+            g = rbg[0, 0, 1]
+            b = rbg[0, 0, 2]
+
+            return (r, g, b, 255)
 
 
 class Layout:
