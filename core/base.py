@@ -1,5 +1,5 @@
 from core.provider.textimg.layout import layout_factory
-from core import text_img_provider, background_img_provider, text_provider, conf
+from core import text_img_provider, background_img_provider, text_provider, smooth_area_provider, conf
 from PIL import Image
 from lxml.etree import Element, SubElement, tostring
 from utils.decorator import count_time
@@ -7,7 +7,7 @@ from utils import log
 import shutil
 import os
 import json
-
+import numpy as np
 
 def get_pic_dir(out_put_dir):
     img_dir = os.path.join(out_put_dir, "img")
@@ -55,7 +55,9 @@ def gen_pic():
     out_put_dir = conf['layout_gen_conf']['out_put_dir']
 
     bg_img = load_bg_img()
-    group_box_list = test_gen_group_box(bg_img)
+
+    group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img))
+    # group_box_list = test_gen_group_box(bg_img)
     layout = layout_factory(
         bg_img=bg_img,
         group_box_list=group_box_list,

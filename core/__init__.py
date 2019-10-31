@@ -4,6 +4,7 @@ from ruamel import yaml
 from core.provider.TextImgProvider import TextImgProvider
 from core.provider.BackgroundImgProvider import BackgroundImgProvider
 from core.provider.TextProvider import TextProvider
+from core.provider.SmoothAreaProvider import SmoothAreaProvider
 from utils import log
 
 basedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
@@ -11,12 +12,14 @@ conf: dict
 text_img_provider: TextImgProvider
 background_img_provider: BackgroundImgProvider
 text_provider: TextProvider
+smooth_area_provider: SmoothAreaProvider
 
 
 def load_from_config():
     global text_img_provider
     global background_img_provider
     global text_provider
+    global smooth_area_provider
 
     text_img_provider = TextImgProvider(
         seed=conf['random_conf']['seed'],
@@ -42,6 +45,8 @@ def load_from_config():
         gen_probability=conf['text_gen_conf']['gen_probability'],
         random_choice=conf['text_gen_conf']['random_choice']
     )
+
+    smooth_area_provider = SmoothAreaProvider(conf['library_conf']['lib_path'])
 
 
 def init_config():
