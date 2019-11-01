@@ -3,3 +3,4 @@ opencv-python
 ruamel.yaml
 numpy
 lxml
+fontTools

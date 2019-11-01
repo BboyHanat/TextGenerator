@@ -4,6 +4,7 @@ from PIL import Image
 from lxml.etree import Element, SubElement, tostring
 from utils.decorator import count_time
 from utils import log
+from utils import font_tool
 import shutil
 import os
 import json

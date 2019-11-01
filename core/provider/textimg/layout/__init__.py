@@ -8,6 +8,7 @@ from core import conf
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
+from utils import font_tool
 import numpy as np
 import cv2
 import os
@@ -170,6 +171,10 @@ class BlockGroup:
         char_border_width = conf['text_img_conf']['char_border_width']
         char_border_color = eval(conf['text_img_conf']['char_border_color'])
 
+        # 剔除不存在的文字
+        text = "".join(filter(lambda c: font_tool.check(c, font_path=fp), text))
+
+        # 生成文本图片
         text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
                                                    font_size=font_size,
                                                    border_width=char_border_width,
