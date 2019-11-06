@@ -63,7 +63,7 @@ layout_strategy_conf:
   CustomizationStrategy1: 0.1
 
 library_conf:
-  lib_path: /Users/lijianan/Documents/workspace/github/TextGenerator/libs/libImgSegmentation.dylib
-
+  os_x_lib_path: /Users/lijianan/Documents/workspace/github/TextGenerator/libs/libImgSegmentation.dylib
+  centos_lib_path: libs/libImgSegmentation.so
 
 
