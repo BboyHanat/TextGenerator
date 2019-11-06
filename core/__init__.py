@@ -1,5 +1,6 @@
 import os
 from ruamel import yaml
+import platform
 
 from core.provider.TextImgProvider import TextImgProvider
 from core.provider.BackgroundImgProvider import BackgroundImgProvider
@@ -20,6 +21,8 @@ def load_from_config():
     global background_img_provider
     global text_provider
     global smooth_area_provider
+
+    system = platform.system()
 
     text_img_provider = TextImgProvider(
         seed=conf['random_conf']['seed'],
@@ -46,7 +49,11 @@ def load_from_config():
         random_choice=conf['text_gen_conf']['random_choice']
     )
 
-    smooth_area_provider = SmoothAreaProvider(conf['library_conf']['lib_path'])
+    if system == 'Linux':
+        lib_path = conf['library_conf']['centos_lib_path']
+    else:
+        lib_path = conf['library_conf']['os_x_lib_path']
+    smooth_area_provider = SmoothAreaProvider(lib_path)
 
 
 def init_config():

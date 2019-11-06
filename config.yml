@@ -1,15 +1,15 @@
 path_conf:
   # text provider config
-  chinese_corpus_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/sentence.txt"
-  english_corpus_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/word-en.txt"
-  random_character_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/chinese_synthetic.txt"
-  specific_scene_character_path: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/common.txt"
+  chinese_corpus_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/sentence.txt
+  english_corpus_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/word-en.txt
+  random_character_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/chinese_synthetic.txt
+  specific_scene_character_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/common.txt
   # image provider config
-  bgimage_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img"
+  bgimage_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/img
   # text render config
-  font_file_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/font"
-  text_img_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img"
-  text_img_info_output_dir: "/Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info"
+  font_file_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/font
+  text_img_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img
+  text_img_info_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info
 
 random_conf:
   seed: 1
@@ -64,6 +64,6 @@ layout_strategy_conf:
 
 library_conf:
   os_x_lib_path: /Users/lijianan/Documents/workspace/github/TextGenerator/libs/libImgSegmentation.dylib
-  centos_lib_path: libs/libImgSegmentation.so
+  centos_lib_path: /Users/lijianan/Documents/workspace/github/TextGenerator/libs/libImgSegmentation.so
 
 
