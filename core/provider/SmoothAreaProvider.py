@@ -20,7 +20,8 @@ def array_to_image(arr):
     c = arr.shape[2]
     h = arr.shape[0]
     w = arr.shape[1]
-    arr = arr.flatten()
+    arr = np.reshape(arr, (c*h*w))
+    arr = list(arr)
     data = c_array(c_uint8, arr)
     im = IMAGE(w, h, c, data)
     return im
@@ -85,3 +86,10 @@ class SmoothAreaProvider(object):
             rects.append([rect.left, rect.top, rect.right, rect.bottom])
         self.free_io_rect(rects_ptr)
         return rects
+
+
+if __name__=='__main__':
+    smooth = SmoothAreaProvider('../../libs/libImgSegmentation.dylib')
+    image = cv2.imread("../../5.jpg")
+    rects = smooth.get_image_rects(image)
+    print(rects)
