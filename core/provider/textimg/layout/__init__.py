@@ -174,19 +174,19 @@ class BlockGroup:
 
         # 剔除不存在的文字
         text = "".join(filter(lambda c: font_tool.check(c, font_path=fp), text))
+        if len(text) >= 2:
+            # 生成文本图片
+            text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
+                                                       font_size=font_size,
+                                                       border_width=char_border_width,
+                                                       border_color=char_border_color,
+                                                       color=self.get_fontcolor(),
+                                                       orientation=orientation,
+                                                       align_mode=align,
+                                                       font_path=fp)
 
-        # 生成文本图片
-        text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
-                                                   font_size=font_size,
-                                                   border_width=char_border_width,
-                                                   border_color=char_border_color,
-                                                   color=self.get_fontcolor(),
-                                                   orientation=orientation,
-                                                   align_mode=align,
-                                                   font_path=fp)
-
-        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle, font_path=fp)
-        return text_block
+            text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle, font_path=fp)
+            return text_block
 
     def preview(self, draw_rect=False):
         """

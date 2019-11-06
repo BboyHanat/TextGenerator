@@ -14,10 +14,8 @@ def check(char, font_path):
     if utf8_char.startswith('\\u'):
         uc = "uni" + utf8_char[2:].upper()
         f = font.getGlyphSet().get(uc)
-        if f:
+        if f and f._glyph.numberOfContours:
             return True
         else:
             return False
     return True
-
-
