@@ -69,8 +69,9 @@ class Block:
 
 
 class TextBlock(Block):
-    def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0):
+    def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0, font_path=""):
         self.img = text_img.img
+        self.font_path = font_path
         super().__init__(self.img, inner_x, inner_y, margin=margin, rotate_angle=rotate_angle)
         # todo:字符边框坐标位置的重新计算
         # for char_obj in text_img.char_obj_list:
@@ -184,7 +185,7 @@ class BlockGroup:
                                                    align_mode=align,
                                                    font_path=fp)
 
-        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle)
+        text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle, font_path=fp)
         return text_block
 
     def preview(self, draw_rect=False):
@@ -314,6 +315,7 @@ class Layout:
                 "box": fragment_box,
                 "data": fragment_data,
                 "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
+                "font": block.font_path.split(os.sep)[-1] if isinstance(block, TextBlock) else "",
                 "type": str(block.__class__.__name__)
             }
             fragment_info_list.append(item)
