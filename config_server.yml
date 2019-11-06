@@ -8,9 +8,9 @@ path_conf:
   # image provider config
   bgimage_dir: /data/User/lijianan/data/ocr_background_img
   # text render config
-  font_file_dir: data/font
-  text_img_output_dir: data/output/text_img
-  text_img_info_output_dir: data/output/text_img_info
+  font_file_dir: /data/User/hanat/TF_CRNN_CTC/data/fonts
+  text_img_output_dir: /hanat/output/text_img
+  text_img_info_output_dir: /hanat/output/text_img_info
 
 random_conf:
   seed: 1
@@ -47,11 +47,11 @@ text_img_conf:
 
 text_gen_conf:
   characters_len_range: (2,20)
-  gen_probability: [0.25,0.25,0.25,0.25]
+  gen_probability: [0.2,0.2,0.2,0.2,0.2]
   random_choice: False
 
 layout_gen_conf:
-  out_put_dir: data/output
+  out_put_dir: /hanat/output
   gen_count: 100
 
 # layout strategy

@@ -47,7 +47,7 @@ text_img_conf:
 
 text_gen_conf:
   characters_len_range: (2,20)
-  gen_probability: [0.25,0.25,0.25,0.25]
+  gen_probability: [0.2,0.2,0.2,0.2,0.2]
   random_choice: False
 
 layout_gen_conf:
