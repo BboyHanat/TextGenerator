@@ -83,5 +83,5 @@ class SmoothAreaProvider(object):
         for i in range(num):
             rect = rects_ptr[0].rect[i]
             rects.append([rect.left, rect.top, rect.right, rect.bottom])
-        self.free_io_rect(rects_ptr)
+        # self.free_io_rect(rects_ptr)
         return rects
