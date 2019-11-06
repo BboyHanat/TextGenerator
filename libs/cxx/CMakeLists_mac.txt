@@ -1,0 +1,111 @@
+cmake_minimum_required(VERSION 3.14)
+
+project(load_dylib_test)
+
+set(CMAKE_CXX_STANDARD 11)
+
+option(USE_OPENMP  "Set to switch to build use SSE"  OFF)
+
+set(OpenCV_DIR /Users/aidaihanati/Library_c++/opencv-4.1.1/opencv-4.1.1-release-static/lib/cmake/opencv4)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OpenCV_DIR})
+
+find_package(OpenCV REQUIRED)
+
+message(${CMAKE_MODULE_PATH})
+
+message(${OpenCV_INCLUDE_DIRS})
+
+SET(CMAKE_BUILD_TYPE "Release")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -framework OpenCL")
+#
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework OpenCL")
+
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+add_definitions(-DENABLE_DEBUG -fopenmp -lstdc++ -o3)
+
+#if(USE_OPENMP) -lopenmp -fopenmp
+#    add_definitions(-DENABLE_DEBUG -fopenmp -lstdc++ -o3)
+#else()
+#    add_definitions(-DENABLE_DEBUG -lstdc++ -o3)
+#endif()
+
+add_library(ImgSegmentation SHARED ImgSegmentation.hpp ImgSegmentation.cpp)
+
+set(Opencv_lib /Users/aidaihanati/Library_c++/opencv-4.1.1/opencv-4.1.1-release-static/lib)
+target_link_libraries(ImgSegmentation
+        /usr/local/opt/libomp/lib/libomp.dylib
+        ${Opencv_lib}/libopencv_core.a
+        ${Opencv_lib}/libopencv_imgproc.a
+        ${Opencv_lib}/libopencv_calib3d.a
+        ${Opencv_lib}/libopencv_core.a
+        ${Opencv_lib}/libopencv_dnn.a
+        ${Opencv_lib}/libopencv_features2d.a
+        ${Opencv_lib}/libopencv_flann.a
+        ${Opencv_lib}/libopencv_gapi.a
+        ${Opencv_lib}/libopencv_highgui.a
+        ${Opencv_lib}/libopencv_imgcodecs.a
+        ${Opencv_lib}/libopencv_imgproc.a
+        ${Opencv_lib}/libopencv_ml.a
+        ${Opencv_lib}/libopencv_objdetect.a
+        ${Opencv_lib}/libopencv_photo.a
+        ${Opencv_lib}/libopencv_stitching.a
+        ${Opencv_lib}/libopencv_video.a
+        ${Opencv_lib}/libopencv_videoio.a
+        ${Opencv_lib}/opencv4/3rdparty/libIlmImf.a
+        ${Opencv_lib}/opencv4/3rdparty/libade.a
+        ${Opencv_lib}/opencv4/3rdparty/libippicv.a
+        ${Opencv_lib}/opencv4/3rdparty/libippiw.a
+        ${Opencv_lib}/opencv4/3rdparty/libittnotify.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibjasper.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibjpeg-turbo.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibpng.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibprotobuf.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibtiff.a
+        ${Opencv_lib}/opencv4/3rdparty/liblibwebp.a
+        ${Opencv_lib}/opencv4/3rdparty/libquirc.a
+        ${Opencv_lib}/opencv4/3rdparty/libzlib.a
+        )
+#if(USE_OPENMP)
+#    target_link_libraries(ImgSegmentation
+#            /usr/local/opt/libomp/lib/libomp.dylib
+#            ${Opencv_lib}/libopencv_core.a
+#            ${Opencv_lib}/libopencv_imgproc.a
+#            )
+#else()
+#    target_link_libraries(ImgSegmentation
+#            ${Opencv_lib}/libopencv_core.a
+#            ${Opencv_lib}/libopencv_imgproc.a
+#            ${Opencv_lib}/libopencv_calib3d.a
+#            ${Opencv_lib}/libopencv_core.a
+#            ${Opencv_lib}/libopencv_dnn.a
+#            ${Opencv_lib}/libopencv_features2d.a
+#            ${Opencv_lib}/libopencv_flann.a
+#            ${Opencv_lib}/libopencv_gapi.a
+#            ${Opencv_lib}/libopencv_highgui.a
+#            ${Opencv_lib}/libopencv_imgcodecs.a
+#            ${Opencv_lib}/libopencv_imgproc.a
+#            ${Opencv_lib}/libopencv_ml.a
+#            ${Opencv_lib}/libopencv_objdetect.a
+#            ${Opencv_lib}/libopencv_photo.a
+#            ${Opencv_lib}/libopencv_stitching.a
+#            ${Opencv_lib}/libopencv_video.a
+#            ${Opencv_lib}/libopencv_videoio.a
+#            ${Opencv_lib}/opencv4/3rdpartya.txt
+#            ${Opencv_lib}/opencv4/3rdpartylibIlmImf.a
+#            ${Opencv_lib}/opencv4/3rdpartylibade.a
+#            ${Opencv_lib}/opencv4/3rdpartylibippicv.a
+#            ${Opencv_lib}/opencv4/3rdpartylibippiw.a
+#            ${Opencv_lib}/opencv4/3rdpartylibittnotify.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibjasper.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibjpeg-turbo.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibpng.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibprotobuf.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibtiff.a
+#            ${Opencv_lib}/opencv4/3rdpartyliblibwebp.a
+#            ${Opencv_lib}/opencv4/3rdpartylibquirc.a
+#            ${Opencv_lib}/opencv4/3rdpartylibzlib.a
+#            )
+#endif()
