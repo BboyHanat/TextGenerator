@@ -6,7 +6,7 @@ path_conf:
   specific_business_corpus_path: data/corpus/dianshang.txt
   specific_scene_character_path: data/corpus/common.txt
   # image provider config
-  bgimage_dir: data/img
+  bgimage_dir: /data/User/lijianan/data/ocr_background_img
   # text render config
   font_file_dir: data/font
   text_img_output_dir: data/output/text_img
