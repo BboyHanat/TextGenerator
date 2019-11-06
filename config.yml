@@ -3,7 +3,7 @@ path_conf:
   chinese_corpus_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/sentence.txt
   english_corpus_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/word-en.txt
   random_character_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/chinese_synthetic.txt
-  specific_business_corpus_path: business.txt
+  specific_business_corpus_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/dianshang.txt
   specific_scene_character_path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/common.txt
   # image provider config
   bgimage_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/img

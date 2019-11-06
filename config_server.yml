@@ -3,6 +3,7 @@ path_conf:
   chinese_corpus_path: data/corpus/sentence.txt
   english_corpus_path: data/corpus/word-en.txt
   random_character_path: data/corpus/chinese_synthetic.txt
+  specific_business_corpus_path: data/corpus/dianshang.txt
   specific_scene_character_path: data/corpus/common.txt
   # image provider config
   bgimage_dir: data/img

@@ -44,6 +44,7 @@ def load_from_config():
         english_corpus_path=conf['path_conf']['english_corpus_path'],
         random_character_path=conf['path_conf']['random_character_path'],
         specific_scene_character_path=conf['path_conf']['specific_scene_character_path'],
+        specific_business_corpus_path=conf['path_conf']['specific_business_corpus_path'],
         characters_len_range=eval(conf['text_gen_conf']['characters_len_range']),
         gen_probability=conf['text_gen_conf']['gen_probability'],
         random_choice=conf['text_gen_conf']['random_choice']
