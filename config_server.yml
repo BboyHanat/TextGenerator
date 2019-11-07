@@ -37,10 +37,10 @@ text_bg_img_conf:
 
 text_img_conf:
   rotate_angle_range: (-8, 8)
-  use_char_common_color_probability: 1
+  use_char_common_color_probability: 0.5
   char_common_color_list:
     - (0,0,0,255)
-    - (0,0,0,0)
+    - (255,0,0,255)
   char_border_width: 0
   char_border_color: (255,255,0,255)
 

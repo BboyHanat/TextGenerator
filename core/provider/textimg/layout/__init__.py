@@ -110,7 +110,7 @@ class BlockGroup:
         from core.provider.textimg.layout.strategy import strategy_controller as sc
         strategy = sc.pick()
         # 尝试生成3次 提高贴图成功率
-        retry_times = 3
+        retry_times = 5
         while retry_times > 0:
             block = self._gen_block(strategy)
             r = False
@@ -127,6 +127,7 @@ class BlockGroup:
                         ))
             if not r:
                 retry_times -= 1
+                log.info("retry auto append block")
 
     def _gen_block(self, strategy: Strategy):
         """
@@ -299,6 +300,16 @@ class Layout:
             log.info("start append block ---- {index} ----".format(index=index))
             block_group.auto_append_block()
         self.render()
+
+    def is_empty(self):
+        """
+        判断当前图片是否为空
+        :return:
+        """
+        for bg in self.block_group_list:
+            if bg.block_list:
+                return False
+        return True
 
     @count_time(tag="区块片收集")
     def collect_block_fragment(self):

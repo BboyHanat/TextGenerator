@@ -68,9 +68,10 @@ def gen_pic():
         out_put_dir=out_put_dir
     )
     layout.gen()
-    layout.dump()
-    # layout.show(draw_rect=True)
-    # pass
+    if not layout.is_empty():
+        layout.dump()
+        # layout.show(draw_rect=True)
+
 
 
 def gen_label_data():
