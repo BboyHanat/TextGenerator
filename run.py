@@ -8,8 +8,9 @@ Desc:
 from core.pipeline import pipeline
 from multiprocessing import Pool
 import os
+from core import conf
 
-process_count = 20
+process_count = conf['gen_mode_conf']['process_count']
 
 
 def start():
@@ -19,6 +20,7 @@ def start():
 if __name__ == '__main__':
 
     print('Parent process %s.' % os.getpid())
+    print("process count : {process_count}".format(process_count=process_count))
     p = Pool(process_count)
     for i in range(process_count):
         p.apply_async(start)

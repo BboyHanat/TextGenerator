@@ -373,10 +373,13 @@ class Layout:
             result['fragment'].append(fragment)
 
         json_file_name = name + ".json"
-        with open(os.path.join(data_dir, json_file_name), 'w', encoding='utf-8') as f:
+        json_file_path = os.path.join(data_dir, json_file_name)
+        with open(json_file_path, 'w', encoding='utf-8') as f:
             json.dump(result, f)
 
         log.info("{name} dump success! ".format(name=name))
+
+        return result
 
     def show(self, draw_rect=False):
         self.render(draw_rect=draw_rect)

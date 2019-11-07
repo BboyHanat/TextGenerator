@@ -4,10 +4,8 @@ from PIL import Image
 from lxml.etree import Element, SubElement, tostring
 from utils.decorator import count_time
 from utils import log
-from utils import font_tool
 import shutil
 import os
-import json
 import numpy as np
 
 
@@ -49,7 +47,14 @@ def gen_all_pic():
     while index < gen_count:
         log.info("-" * 20 + " generate new picture {index}/{gen_count}".format(index=index,
                                                                                gen_count=gen_count) + "-" * 20)
-        if gen_pic():
+        dump_data = gen_pic()
+        # 写入label
+        add_label_data(dump_data)
+        # 生成voc
+        if conf['gen_mode_conf']['gen_voc']:
+            gen_voc(dump_data)
+
+        if dump_data:
             index += 1
 
 
@@ -87,80 +92,67 @@ def gen_pic():
     )
     layout.gen()
     if not layout.is_empty():
-        layout.dump()
+        dump_data = layout.dump()
         # layout.show(draw_rect=True)
-        return True
+        return dump_data
     else:
         log.info("-" * 10 + "layout is empty" + "-" * 10)
-        return False
+        return None
 
 
-def gen_label_data():
+def add_label_data(layout_data):
     """
-    生成标签文件
+    写入标签文件
     :return:
     """
     out_put_dir = conf['layout_gen_conf']['out_put_dir']
-
     label_data_dir = get_label_data_dir(out_put_dir=out_put_dir)
-    lable_file_path = os.path.join(label_data_dir, "label.txt")
+    os.makedirs(label_data_dir, exist_ok=True)
+
+    label_file_path = os.path.join(label_data_dir, "label_{pid}.txt".format(pid=os.getpid()))
     fragment_dir = get_fragment_dir(out_put_dir)
 
-    # 删除原有的标签文件
-    shutil.rmtree(label_data_dir, ignore_errors=True)
     # 拷贝图片
-    shutil.copytree(fragment_dir, label_data_dir)
-    log.info("copy fragment img success")
+    fragment_list = layout_data['fragment']
+    with open(label_file_path, 'a+') as f:
+        for fragment in fragment_list:
+            fragment_name = fragment['fragment_name']
+            fragment_img_src_path = os.path.join(fragment_dir, fragment_name)
+            fragment_img_dst_path = os.path.join(label_data_dir, fragment_name)
+            shutil.copy(fragment_img_src_path, fragment_img_dst_path)
 
-    # 生成标签文本
-    data_dir = get_data_dir(out_put_dir)
-
-    lines = []
-    for file_name in os.listdir(data_dir):
-        data_file = os.path.join(data_dir, file_name)
-        with open(data_file, 'r') as f:
-            data = json.load(f)
-            for fragment in data['fragment']:
-                txt = fragment['data']
-                img_name = fragment['fragment_name']
-                lines.append(img_name + "^" + txt + os.linesep)
-
-    with open(lable_file_path, 'w') as f:
-        f.writelines(lines)
+            txt = fragment['data']
+            img_name = fragment['fragment_name']
+            line = img_name + "^" + txt + os.linesep
+            f.write(line)
     log.info("gen label data success!")
 
 
-def gen_all_voc():
+def gen_voc(layout_data):
     """
     生成voc数据集
     :return:
     """
     out_put_dir = conf['layout_gen_conf']['out_put_dir']
-
     voc_data_dir = get_voc_data_dir(out_put_dir=out_put_dir)
-
-    # 删除原有的标签文件
-    shutil.rmtree(voc_data_dir, ignore_errors=True)
-    os.makedirs(voc_data_dir, exist_ok=True)
 
     voc_img_dir = os.path.join(voc_data_dir, "voc_img")
     voc_xml_dir = os.path.join(voc_data_dir, "voc_xml")
+    os.makedirs(voc_img_dir, exist_ok=True)
     os.makedirs(voc_xml_dir, exist_ok=True)
 
     pic_dir = get_pic_dir(out_put_dir)
+    pic_name = layout_data['pic_name']
+    pic_path = os.path.join(pic_dir, pic_name)
+    pic_save_to_path = os.path.join(voc_img_dir, pic_name)
 
     # 拷贝图片
-    shutil.copytree(pic_dir, voc_img_dir)
+    shutil.copy(pic_path, pic_save_to_path)
     log.info("copy img success")
 
     # 生成标签文本
-    data_dir = get_data_dir(out_put_dir)
+    _gen_voc(voc_xml_dir, data=layout_data)
 
-    for file_name in os.listdir(data_dir):
-        data_file = os.path.join(data_dir, file_name)
-        with open(data_file, 'r') as f:
-            data = json.load(f)
-            _gen_voc(voc_xml_dir, data=data)
     log.info("voc data gen success")
 
 

@@ -24,9 +24,8 @@ random_conf:
   bgimage_from_gauss_probability: 0.2
 
 gen_mode_conf:
-  ocr_data_gen: 1
-  detect_data_gen: 1
-  sementic_data_gen: 0
+  gen_voc: False
+  process_count: 20
 
 text_bg_img_conf:
   img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
