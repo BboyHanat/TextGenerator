@@ -58,8 +58,8 @@ def gen_pic():
 
     bg_img = load_bg_img()
 
-    group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img))
-    # group_box_list = test_gen_group_box(bg_img)
+    # group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img))
+    group_box_list = test_gen_group_box(bg_img)
     layout = layout_factory(
         bg_img=bg_img,
         group_box_list=group_box_list,
@@ -68,9 +68,10 @@ def gen_pic():
         out_put_dir=out_put_dir
     )
     layout.gen()
-    layout.dump()
-    # layout.show(draw_rect=True)
-    # pass
+    if not layout.is_empty():
+        layout.dump()
+        # layout.show(draw_rect=True)
+
 
 
 def gen_label_data():
