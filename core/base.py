@@ -49,8 +49,8 @@ def gen_all_pic():
     while index < gen_count:
         log.info("-" * 20 + " generate new picture {index}/{gen_count}".format(index=index,
                                                                                gen_count=gen_count) + "-" * 20)
-        gen_pic()
-        index += 1
+        if gen_pic():
+            index += 1
 
 
 def gen_pic():
@@ -71,7 +71,10 @@ def gen_pic():
     if not layout.is_empty():
         layout.dump()
         # layout.show(draw_rect=True)
-
+        return True
+    else:
+        log.info("-" * 10 + "layout is empty" + "-" * 10)
+        return False
 
 
 def gen_label_data():
