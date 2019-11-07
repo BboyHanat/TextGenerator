@@ -164,7 +164,11 @@ class BlockGroup:
         align = Random.random_choice_list([TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C])
 
         v = min(self.width, self.height)
+        # 设置字体大小
         font_size = Random.random_int(v // 20, v // 10)
+        font_min_size = int(conf['text_img_conf']['font_min_size'])
+        if font_size < font_min_size:
+            font_size = font_min_size
 
         # 文本贴图旋转角度
         rotate_angle_range = (eval(conf['text_img_conf']['rotate_angle_range']))
