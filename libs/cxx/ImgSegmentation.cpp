@@ -96,9 +96,11 @@ Rect_C nextRect(Rect_C rect, Point point, vector<Point> contour)
         candidate_rects.push_back(rect_c);
         candidate_areas.push_back(rect_c.area());
     }
-
+    if(candidate_areas.size()==0){
+        rect=Rect_C{-1,-1,-1,-1};
+        return rect;
+    }
     int dist_idx = argmax(candidate_areas);
-
     rect = Rect_C{
             candidate_rects[dist_idx].x,
             candidate_rects[dist_idx].y,
@@ -129,11 +131,15 @@ Rect_C insidePoint(Rect_C rect, vector<int> x_sets, vector<int> y_sets, vector<P
             weight.push_back(w);
         }
     }
+
     vector<int> weight_index = argsort(weight);
-    if (inside_x_sets.size() != 0)
-    {
+
+    if (inside_x_sets.size() != 0){
         Point point(inside_x_sets[weight_index[0]],inside_y_sets[weight_index[0]]);
         rect = nextRect(rect, point, contour);
+        if(rect.left==-1){
+            return rect;
+        }
         rect = insidePoint(rect, inside_x_sets, inside_y_sets, contour, width, height);
         return rect;
     }
@@ -184,14 +190,12 @@ vector<Rect_C> getRectByImgContour(Mat mat, Size serchRectSize = Size(5, 5)) {
 #pragma omp parallel for
     for(int i=0; i<contours.size();i++)
     {
-
-
         Rect rect_p = boundingRect(contours[i]);
         if (rect_p.area()<5000){
             continue;
         }
         Rect_C rect = getInnerRect(rect_p,contours[i],rect_mat_w,rect_mat_h);
-        if((rect.bottom-rect.top)*(rect.right-rect.left)>=1000){
+        if((rect.bottom-rect.top)*(rect.right-rect.left)>=1000 && (rect.left!=-1)){
             rects[i].left=int(float(rect.left)*scale);
             rects[i].top=int(float(rect.top)*scale);
             rects[i].right=int(float(rect.right)*scale);
@@ -246,17 +250,18 @@ void SegmentImage(ImageMeta *data, ImageMeta *level_mask) {
 
 
 IO_RECT* SegmentImageAndgetRect(ImageMeta *data) {
+    cout<<"fafaf-1"<<endl;
     Mat img = Mat::zeros(Size(data->w,data->h),CV_8UC3);
     Mat img_cp;
     img.data=data->data;
     cv::resize(img, img_cp,Size(320,320));
-
+    cout<<"fafaf0"<<endl;
 
     int spatialRad = 15;        //空间窗口大小
     int colorRad = 30;          //色彩窗口大小
     int maxPyrLevel = 0;        //金字塔层数
 //    medianBlur(img_cp, img_cp, 5);
-    pyrMeanShiftFiltering( img_cp, img_cp, spatialRad, colorRad, maxPyrLevel); //色彩聚类平滑滤波
+    pyrMeanShiftFiltering(img_cp, img_cp, spatialRad, colorRad, maxPyrLevel); //色彩聚类平滑滤波
 
     Mat color_mat;
     cvtColor(img_cp, color_mat, COLOR_BGR2HSV_FULL);
@@ -276,14 +281,12 @@ IO_RECT* SegmentImageAndgetRect(ImageMeta *data) {
     Mat gray;
     cvtColor(color_mat, gray,COLOR_BGR2GRAY);
     vector<Rect_C> rects= getRectByImgContour(gray);
-
     IO_RECT* rects_out = (IO_RECT*)malloc(sizeof(IO_RECT));
     if(int(rects.size())==0){
         rects_out->num = int(rects.size());
         rects_out->rect = NULL;
         return rects_out;
     }
-
     rects_out->num = int(rects.size());
     rects_out->rect = (Rect_C *)calloc(rects.size(),4*4);
     float wScale = float(data->w) / 320.0;
@@ -296,7 +299,6 @@ IO_RECT* SegmentImageAndgetRect(ImageMeta *data) {
         rects_out->rect[i].right=int(float(rects[i].right)*wScale);
         rects_out->rect[i].bottom=int(float(rects[i].bottom)*hScale);
     }
-
     return rects_out;
 }
 
