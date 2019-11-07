@@ -51,7 +51,8 @@ text_gen_conf:
   random_choice: False
 
 layout_gen_conf:
-  out_put_dir: /hanat/output
+#  out_put_dir: /hanat/output
+  out_put_dir: data/output
   gen_count: 100
 
 # layout strategy
