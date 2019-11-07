@@ -78,18 +78,18 @@ class SmoothAreaProvider(object):
 
         img = array_to_image(image)
         rects_ptr = self.segment_and_getrect(img)
-        print(rects_ptr[0].num)
         num = int(rects_ptr[0].num)
         rects = list()
         for i in range(num):
             rect = rects_ptr[0].rect[i]
             rects.append([rect.left, rect.top, rect.right, rect.bottom])
-        # self.free_io_rect(rects_ptr)
+        self.free_io_rect(rects_ptr)
         return rects
 
 
 if __name__=='__main__':
     smooth = SmoothAreaProvider('../../libs/libImgSegmentation.dylib')
-    image = cv2.imread("../../5.jpg")
+    image = cv2.imread("../../apic16820.jpg")
+    print('aaaa')
     rects = smooth.get_image_rects(image)
     print(rects)
