@@ -13,4 +13,4 @@ class Pipeline:
 
 
 pipeline = Pipeline()
-pipeline.start()
+# pipeline.start()
