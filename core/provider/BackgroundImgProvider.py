@@ -32,6 +32,7 @@ class DirImageGen(object):
         while True:
             if seek == self._imgs_length:
                 seek = 0
+            print("test:", self._image_list[seek])
             yield cv2.imread(self._image_list[seek])
             seek += 1
 
