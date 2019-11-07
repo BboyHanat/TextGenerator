@@ -58,7 +58,22 @@ def gen_pic():
 
     bg_img = load_bg_img()
 
-    group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img))
+    # 智能候选区选取逻辑
+    width = bg_img.width
+    height = bg_img.height
+    to_width = 320
+    to_height = 320
+    rw = width / to_width
+    rh = height / to_height
+    bg_img_copy = bg_img.resize(size=(to_width, to_height))
+    calc_group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img_copy))
+    group_box_list = []
+    for box in calc_group_box_list:
+        group_box_list.append([int(box[0] * rw),
+                               int(box[1] * rh),
+                               int(box[2] * rw),
+                               int(box[3] * rh)])
+
     # 如果智能候选区域为空，则随机生成候选区
     if not group_box_list:
         group_box_list = test_gen_group_box(bg_img)
