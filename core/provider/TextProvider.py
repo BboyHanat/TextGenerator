@@ -56,7 +56,7 @@ class RandomCharacterGen(object):
         """
         seek = 0
         while True:
-            batch_size = Random.random_seek(self._len_range[0], self._len_range[1])
+            batch_size = Random.random_int(self._len_range[0], self._len_range[1])
             if len(self._character_seq) - seek < batch_size:
                 for i in range(len(self._character_seq) - seek):
                     self._character_seq.insert(0, self._character_seq[-1])

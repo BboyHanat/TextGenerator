@@ -17,7 +17,7 @@ class Random(object):
         prob_range_list = list()
         seek = 0.0
         for p in prob_list:
-            prob_range_list.append((seek, p))
+            prob_range_list.append((seek, seek + p))
             seek += p
 
         while True:

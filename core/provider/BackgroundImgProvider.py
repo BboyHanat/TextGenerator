@@ -52,7 +52,7 @@ class GenrateGaussImage(object):
     def get_gauss_image(self):
         while True:
             bg = self.apply_gauss_blur()
-            yield bg
+            yield cv2.cvtColor(bg, cv2.COLOR_GRAY2BGR)
 
     def apply_gauss_blur(self, ks=None):
         """
@@ -115,7 +115,6 @@ class GenrateQuasicrystalImage(object):
         rotation_vec = np.reshape(rotation_vec, newshape=(1, 1, rotation_count))
 
         for k in range(3):
-
             frequency = Random.random_float(0, 1) * 30 + 20  # frequency
             phase = Random.random_float(0, 1) * 2 * math.pi  # phase
 
@@ -124,7 +123,7 @@ class GenrateQuasicrystalImage(object):
             z = np.cos(r * np.sin(a) * frequency + phase)
             z = np.sum(z, axis=-1)
 
-            c = 255-np.round(255*z/rotation_count)
+            c = 255 - np.round(255 * z / rotation_count)
             c = np.asarray(c, dtype=np.uint8)
             image[:, :, k] = c
 
@@ -154,14 +153,13 @@ class BackgroundImgProvider(object):
         self._gen_probability = gen_probability
         self._gen_random_image = gen_random_image
 
-        img_path = [os.path.join(bg_img_dir, img) for img in os.listdir(bg_img_dir) if img.split(".")[-1] in img_format and ('.DS' not in img)]
+        img_path = [os.path.join(bg_img_dir, img) for img in os.listdir(bg_img_dir) if
+                    img.split(".")[-1] in img_format and ('.DS' not in img)]
         dir_img_gen = DirImageGen(img_path)
         gauss_img_gen = None
-        quasicrystal_img_gen = None
         if gen_random_image:
             gauss_img_gen = GenrateGaussImage(width_range=g_width_range, height_range=g_height_range)
-            quasicrystal_img_gen = GenrateQuasicrystalImage(width_range=g_width_range, height_range=g_height_range)
-        self._all_generator = [dir_img_gen, gauss_img_gen, quasicrystal_img_gen]
+        self._all_generator = [dir_img_gen, gauss_img_gen]
         self.gen = self.get_generator()
 
     def get_generator(self):
@@ -179,4 +177,3 @@ class BackgroundImgProvider(object):
 
     def generator(self):
         return self.gen.__next__()
-

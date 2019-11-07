@@ -21,8 +21,7 @@ random_conf:
   specific_scene_character_probability: 0.2
   # image provider config
   bgimage_from_dir_probability: 0.8
-  bgimage_from_gauss_probability: 0.15
-  bgimage_from_quasicrystal_probability: 0.05
+  bgimage_from_gauss_probability: 0.2
 
 gen_mode_conf:
   ocr_data_gen: 1
