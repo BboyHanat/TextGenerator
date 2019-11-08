@@ -51,8 +51,9 @@ text_gen_conf:
 
 layout_gen_conf:
 #  out_put_dir: /hanat/output
-  out_put_dir: data/output
-  gen_count: 100
+#  out_put_dir: data/output
+  out_put_dir: /data/User/lijianan/data/output
+  gen_count: 5000
 
 # layout strategy
 layout_strategy_conf:
