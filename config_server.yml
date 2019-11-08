@@ -24,7 +24,7 @@ random_conf:
   bgimage_from_gauss_probability: 0.2
 
 gen_mode_conf:
-  gen_voc: False
+  gen_voc: True
   process_count: 20
 
 text_bg_img_conf:
