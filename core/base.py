@@ -49,13 +49,12 @@ def gen_all_pic():
                                                                                gen_count=gen_count) + "-" * 20)
         dump_data = gen_pic()
         # 写入label
-        add_label_data(dump_data)
-        # 生成voc
-        if conf['gen_mode_conf']['gen_voc']:
-            gen_voc(dump_data)
-
         if dump_data:
-            index += 1
+            add_label_data(dump_data)
+            # 生成voc
+            if conf['gen_mode_conf']['gen_voc']:
+                gen_voc(dump_data)
+                index += 1
 
 
 def gen_pic():
