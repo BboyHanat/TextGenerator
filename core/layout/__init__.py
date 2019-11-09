@@ -4,7 +4,6 @@ from service.constant import const
 from core.layout.strategy import Strategy
 from service.provider.TextProvider import TextProvider
 from service.provider.TextImgProvider import TextImgProvider
-from service import conf
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
@@ -141,6 +140,7 @@ class BlockGroup:
         from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
         from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
         from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
+        from service import conf
 
         text = "".join(self.text_provider.gen.__next__())
         fp = self.text_img_provider.next_font_path()
@@ -239,6 +239,7 @@ class BlockGroup:
         :param image:
         :return:
         """
+        from service import conf
         use_char_common_color_probability = conf['text_img_conf']['use_char_common_color_probability']
         char_common_color_list = conf['text_img_conf']['char_common_color_list']
 

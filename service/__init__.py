@@ -7,6 +7,9 @@ from service.provider.BackgroundImgProvider import BackgroundImgProvider
 from service.provider.TextProvider import TextProvider
 from service.provider.SmoothAreaProvider import SmoothAreaProvider
 from utils import log
+from multiprocessing import Pool
+import traceback
+import os
 
 basedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
 conf: dict
@@ -66,4 +69,28 @@ def init_config():
         load_from_config()
 
 
-init_config()
+def init():
+    init_config()
+
+
+def run():
+    try:
+        from service.base import gen_all_pic
+        gen_all_pic()
+    except Exception as e:
+        traceback.print_exc()
+
+
+def start():
+    init()
+    process_count = conf['gen_mode_conf']['process_count']
+    print('Parent process {pid}.'.format(pid=os.getpid()))
+    print('process count : {process_count}'.format(process_count=process_count))
+
+    p = Pool(process_count)
+    for i in range(process_count):
+        p.apply_async(run)
+    print('Waiting for all subprocesses done...')
+    p.close()
+    p.join()
+    print('All subprocesses done.')
