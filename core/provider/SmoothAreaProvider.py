@@ -1,95 +1,174 @@
 """
-Name : SmoothAreaProvider.py
+Name : test.py
 Author  : Hanat
 Contect : hanati@tezign.com
-Time    : 2019-09-20 17:41
+Time    : 2019-10-16 15:33
 Desc:
 """
+
+# cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/data/User/hanat/opencv_install -D WITH_CUDA=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 -D WITH_CUBLAS=1 -D WITH_OPENMP=1 ..
+
 import cv2
 import numpy as np
-from ctypes import *
+from libs import nms
+from libs import select_by_kp
 
 
-def c_array(ctype, values):
-    arr = (ctype * len(values))()
-    arr[:] = values
-    return arr
+def _whctrs(anchor):
+    """
+    Return width, height, x center, and y center for an anchor (window).
+    """
+    w = anchor[2] - anchor[0] + 1
+    h = anchor[3] - anchor[1] + 1
+    x_ctr = anchor[0] + 0.5 * (w - 1)
+    y_ctr = anchor[1] + 0.5 * (h - 1)
+    return w, h, x_ctr, y_ctr
 
 
-def array_to_image(arr):
-    c = arr.shape[2]
-    h = arr.shape[0]
-    w = arr.shape[1]
-    arr = np.reshape(arr, (c*h*w))
-    arr = list(arr)
-    data = c_array(c_uint8, arr)
-    im = IMAGE(w, h, c, data)
-    return im
+def _ratio_enum(anchor, ratios):
+    """
+    Enumerate a set of anchors for each aspect ratio wrt an anchor.
+    """
+
+    w, h, x_ctr, y_ctr = _whctrs(anchor)
+    size = w * h
+    size_ratios = size / ratios
+    ws = np.round(np.sqrt(size_ratios))
+    hs = np.round(ws * ratios)
+    anchors = _mkanchors(ws, hs, x_ctr, y_ctr)
+    return anchors
 
 
-class Rect_C(Structure):
-    _fields_ = [("left", c_int),
-                ("top", c_int),
-                ("right", c_int),
-                ("bottom", c_int)]
+def _scale_enum(anchor, scales):
+    """
+    Enumerate a set of anchors for each scale wrt an anchor.
+    """
+    w, h, x_ctr, y_ctr = _whctrs(anchor)
+    ws = w * scales
+    hs = h * scales
+    anchors = _mkanchors(ws, hs, x_ctr, y_ctr)
+    return anchors
 
 
-class InOut_Rect(Structure):
-    _fields_ = [("num", c_int),
-                ("rect", POINTER(Rect_C))]
-
-
-class IMAGE(Structure):
-    _fields_ = [("w", c_int),
-                ("h", c_int),
-                ("c", c_int),
-                ("data", POINTER(c_uint8))]
+def _mkanchors(ws, hs, x_ctr, y_ctr):
+    """
+    Given a vector of widths (ws) and heights (hs) around a center
+    (x_ctr, y_ctr), output a set of anchors (windows).
+    """
+    ws = ws[:, np.newaxis]
+    hs = hs[:, np.newaxis]
+    anchors = np.hstack((x_ctr - 0.5 * (ws - 1),
+                         y_ctr - 0.5 * (hs - 1),
+                         x_ctr + 0.5 * (ws - 1),
+                         y_ctr + 0.5 * (hs - 1),))
+    return anchors
 
 
 class SmoothAreaProvider(object):
-    def __init__(self, lib_path):
-        lib = CDLL(lib_path)
-        segment = lib.SegmentImage
-        segment.argtypes = [POINTER(IMAGE), POINTER(IMAGE)]
+    """
 
-        self.segment = lib.SegmentImage
-        self.segment.argtypes = [POINTER(IMAGE), POINTER(IMAGE)]
+    """
 
-        self.segment_and_getrect = lib.SegmentImageAndgetRect
-        self.segment_and_getrect.argtypes = [POINTER(IMAGE)]
-        self.segment_and_getrect.restype = POINTER(InOut_Rect)
+    def __init__(self,
+                 down_scale=32,
+                 anchor_ratio=(0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6),
+                 anchor_scale=(8, 16, 24, 32, 48, 64, 72, 90)
+                 ):
+        self._down_scale = down_scale
+        self._anchor_ratio = anchor_ratio
+        self._anchor_scale = anchor_scale
+        self._fast = cv2.FastFeatureDetector_create()
 
-        self.free_io_rect = lib.freeRectPtr
-        self.free_io_rect.argtypes = [POINTER(InOut_Rect)]
-
-    def get_image_rects(self, image):
+    def get_image_rects(self, image_in, long_side=320):
         """
-
-        :param image:
+        get region rects from image smoothness area
+        :param image_in:
+        :param long_side:
         :return:
         """
-        assert type(image) == np.ndarray
-        shape = image.shape
-        if len(shape) == 2:
-            image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+        assert type(image_in) == np.ndarray
+        if len(image_in.shape) == 2:
+            image_process = np.asarray(image_in)
+        elif image_in.shape[2] == 3:
+            image_process = cv2.cvtColor(image_in, cv2.COLOR_RGB2GRAY)
+        elif image_in.shape[2] == 4:
+            image_process = cv2.cvtColor(image_in, cv2.COLOR_RGBA2RGB)
+        else:
+            raise ValueError("wrong image format")
 
-        elif shape[2] == 4:
-            image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+        src_h, src_w = image_process.shape[:2]
+        if src_h > src_w:
+            new_h = int(long_side)
+            scale = src_h / long_side
+            new_w = int(src_w / scale)
+        else:
+            new_w = int(long_side)
+            scale = src_w / long_side
+            new_h = int(src_h / scale)
 
-        img = array_to_image(image)
-        rects_ptr = self.segment_and_getrect(img)
-        num = int(rects_ptr[0].num)
-        rects = list()
-        for i in range(num):
-            rect = rects_ptr[0].rect[i]
-            rects.append([rect.left, rect.top, rect.right, rect.bottom])
-        self.free_io_rect(rects_ptr)
-        return rects
+        image_process = cv2.resize(image_process, (new_w, new_h))
+        anchors, length = self.generate_anchors_pre(new_h, new_w)
+
+        key_points = self._fast.detect(image_process, None)
+        kp_image = np.zeros((new_h, new_w), dtype=np.uint8)
+        for kp in key_points:
+            kp_image[int(kp.pt[1]), int(kp.pt[0])] = 1
+
+        sum_arr = np.zeros((new_h, new_w), np.float32)
+        image_integral = cv2.integral(kp_image, sum_arr, cv2.CV_32FC1)
+        anchor_preserved = select_by_kp(image_integral, anchors)
+        length = len(anchor_preserved)
+        anchor_preserved = np.asarray(anchor_preserved, np.float32)
+        if length > 0:
+            keep = nms(anchor_preserved, 0.00001)
+            anchor_preserved = anchor_preserved[keep, :]
+        for i in range(anchor_preserved.shape[0]):
+            anchor_preserved[i, :] = anchor_preserved[i, :] * scale
+        anchor_preserved = anchor_preserved[:, 0:4]
+        anchor_preserved = np.asarray(anchor_preserved, np.int32)
+        anchor_preserved = list(anchor_preserved)
+        return anchor_preserved
+
+    def generate_anchors_pre(self, height, width):
+        """ A wrapper function to generate anchors given different scales
+          Also return the number of anchors in variable 'length'
+        """
+        anchors = self.generate_anchors(ratios=np.asarray(self._anchor_ratio), scales=np.asarray(self._anchor_scale))
+        A = anchors.shape[0]
+        shift_x = np.arange(0, width)  # * self._down_scale
+        shift_y = np.arange(0, height)  # * self._down_scale
+        shift_x, shift_y = np.meshgrid(shift_x, shift_y)
+        shifts = np.vstack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel())).transpose()
+        K = shifts.shape[0]
+        # width changes faster, so here it is H, W, C
+        anchors = anchors.reshape((1, A, 4)) + shifts.reshape((1, K, 4)).transpose((1, 0, 2))
+        anchors = anchors.reshape((K * A, 4)).astype(np.float32, copy=False)
+        length = np.int32(anchors.shape[0])
+
+        return anchors, length
+
+    @staticmethod
+    def generate_anchors(base_size=3, ratios=np.asarray([0.5, 1, 2]),
+                         scales=2 ** np.arange(3, 6)):
+        """
+        Generate anchor (reference) windows by enumerating aspect ratios X
+        scales wrt a reference (0, 0, 15, 15) window.
+        """
+
+        base_anchor = np.array([1, 1, base_size, base_size], np.float32) - 1
+        ratio_anchors = _ratio_enum(base_anchor, ratios)
+        anchors = np.vstack([_scale_enum(ratio_anchors[i, :], scales)
+                             for i in range(ratio_anchors.shape[0])])
+        return anchors
 
 
-if __name__=='__main__':
-    smooth = SmoothAreaProvider('../../libs/libImgSegmentation.dylib')
-    image = cv2.imread("../../apic16820.jpg")
-    print('aaaa')
+if __name__ == '__main__':
+    smooth = SmoothAreaProvider()
+    image = cv2.imread("/Users/aidaihanati/TezignProject/TextGenerator/5.jpg")
     rects = smooth.get_image_rects(image)
-    print(rects)
+    for rect in rects:
+        cv2.rectangle(image, (rect[0], rect[1]), (rect[2], rect[3]), (120, 78, 180), 2)
+    cv2.imwrite('test.jpg', image)
+    cv2.imshow("test", image)
+    cv2.waitKey(3000)
+
