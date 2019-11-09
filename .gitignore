@@ -224,3 +224,4 @@ Temporary Items
 
 core.*
 /data/
+/libs/*.so
