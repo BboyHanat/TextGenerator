@@ -1,10 +1,10 @@
-from core.provider.TextImgProvider import TextImg
+from service.provider.TextImgProvider import TextImg
 from PIL import Image, ImageDraw
-from core.constant import const
-from core.provider.textimg.layout.strategy import Strategy
-from core.provider.TextProvider import TextProvider
-from core.provider.TextImgProvider import TextImgProvider
-from core import conf
+from service.constant import const
+from core.layout.strategy import Strategy
+from service.provider.TextProvider import TextProvider
+from service.provider.TextImgProvider import TextImgProvider
+from service import conf
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
@@ -39,7 +39,7 @@ class Block:
         pass
 
     def get_orientation(self):
-        from core.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL
+        from service.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL
         if self.inner_width > self.inner_height:
             return TYPE_ORIENTATION_HORIZONTAL
         else:
@@ -107,7 +107,7 @@ class BlockGroup:
         自动添加block
         :return:
         """
-        from core.provider.textimg.layout.strategy import strategy_controller as sc
+        from core.layout.strategy import strategy_controller as sc
         strategy = sc.pick()
         # 尝试生成3次 提高贴图成功率
         retry_times = 5
@@ -134,13 +134,13 @@ class BlockGroup:
         生成一个block
         :return:
         """
-        from core.provider.TextImgProvider import text_img_generator, TYPE_ORIENTATION_HORIZONTAL, \
+        from service.provider.TextImgProvider import text_img_generator, TYPE_ORIENTATION_HORIZONTAL, \
             TYPE_ORIENTATION_VERTICAL, TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C
-        from core.provider.textimg.layout.strategy.HorizontalStrategy import HorizontalStrategy
-        from core.provider.textimg.layout.strategy.VerticalStrategy import VerticalStrategy
-        from core.provider.textimg.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
-        from core.provider.textimg.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
-        from core.provider.textimg.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
+        from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
+        from core.layout.strategy.VerticalStrategy import VerticalStrategy
+        from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
+        from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
+        from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
 
         text = "".join(self.text_provider.gen.__next__())
         fp = self.text_img_provider.next_font_path()
@@ -317,7 +317,7 @@ class Layout:
 
     @count_time(tag="区块片收集")
     def collect_block_fragment(self):
-        from core.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL
+        from service.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL
 
         fragment_info_list = []
         for block in self.get_all_block_list():
@@ -338,7 +338,7 @@ class Layout:
 
     @count_time("dump layout info")
     def dump(self):
-        from core.base import get_data_dir, get_pic_dir, get_fragment_dir
+        from service.base import get_data_dir, get_pic_dir, get_fragment_dir
 
         result = {}
 
@@ -416,8 +416,8 @@ def layout_factory(bg_img: Image.Image,
 
 
 if __name__ == '__main__':
-    # from core import text_img_provider
-    # from core.provider.TextImgProvider import text_img_generator
+    # from service import text_img_provider
+    # from service.provider.TextImgProvider import text_img_generator
 
     bg_img_path = "/Users/lijianan/Documents/workspace/github/TextGenerator/data/img/spider_man.jpeg"
 

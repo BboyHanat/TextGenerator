@@ -1,12 +1,12 @@
-from core.provider.textimg.layout.strategy import Strategy
+from core.layout.strategy import Strategy
 from utils.random_tools import Random
-from core.provider.textimg.layout.strategy.HorizontalStrategy import HorizontalStrategy
-from core.provider.textimg.layout.strategy.VerticalStrategy import VerticalStrategy
-from core.provider.textimg.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
-from core.provider.textimg.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
-from core.provider.textimg.layout.strategy.RandomPasteStrategy import RandomPasteStrategy
-from core.provider.textimg.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
-from core import conf
+from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
+from core.layout.strategy.VerticalStrategy import VerticalStrategy
+from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
+from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
+from core.layout.strategy.RandomPasteStrategy import RandomPasteStrategy
+from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
+from service import conf
 from utils import log
 
 horizontal_strategy = HorizontalStrategy()

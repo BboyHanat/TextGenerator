@@ -6,7 +6,7 @@ import math
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from core.constant import const
+from service.constant import const
 from utils.decorator import singleton
 from utils import time_util as tu
 from utils.random_tools import Random
@@ -413,7 +413,7 @@ text_img_generator = TextImgGenerator()
 
 if __name__ == '__main__':
     # 使用示例
-    from core import text_img_provider
+    from service import text_img_provider
 
     # 获取一个字体文件的路径
     fp = text_img_provider.next_font_path()

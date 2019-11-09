@@ -1,4 +1,4 @@
-from core.base import gen_all_pic
+from service.base import gen_all_pic
 
 
 class Pipeline:

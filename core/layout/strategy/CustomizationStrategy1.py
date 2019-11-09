@@ -1,5 +1,5 @@
-from core.provider.textimg.layout.strategy import Strategy
-from core.provider.textimg.layout.strategy import is_horizontal, is_vertical
+from core.layout.strategy import Strategy
+from core.layout.strategy import is_horizontal, is_vertical
 
 
 class CustomizationStrategy1(Strategy):

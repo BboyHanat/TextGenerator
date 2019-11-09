@@ -1,4 +1,4 @@
-from core.provider.textimg.layout.strategy import Strategy
+from core.layout.strategy import Strategy
 
 
 class VerticalStrategy(Strategy):

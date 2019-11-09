@@ -1,5 +1,5 @@
-from core.provider.textimg.layout import layout_factory
-from core import text_img_provider, background_img_provider, text_provider, smooth_area_provider, conf
+from core.layout import layout_factory
+from service import text_img_provider, background_img_provider, text_provider, smooth_area_provider, conf
 from PIL import Image
 from lxml.etree import Element, SubElement, tostring
 from utils.decorator import count_time
@@ -218,7 +218,7 @@ def test_gen_group_box(bg_img):
     :return:
     """
     from utils.random_tools import Random
-    from core.provider.textimg.layout.strategy import check_two_box_is_overlap
+    from core.layout.strategy import check_two_box_is_overlap
 
     w = bg_img.width
     h = bg_img.height

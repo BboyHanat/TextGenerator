@@ -5,10 +5,10 @@ Contect : hanati@tezign.com
 Time    : 2019-09-18 11:55
 Desc:
 """
-from core.pipeline import pipeline
+from service.pipeline import pipeline
 from multiprocessing import Pool
 import os
-from core import conf
+from service import conf
 import traceback
 
 process_count = conf['gen_mode_conf']['process_count']
