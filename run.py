@@ -9,12 +9,16 @@ from core.pipeline import pipeline
 from multiprocessing import Pool
 import os
 from core import conf
+import traceback
 
 process_count = conf['gen_mode_conf']['process_count']
 
 
 def start():
-    pipeline.start()
+    try:
+        pipeline.start()
+    except Exception as e:
+        traceback.print_exc()
 
 
 if __name__ == '__main__':
