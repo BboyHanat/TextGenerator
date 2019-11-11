@@ -1,3 +1,8 @@
+base:
+  process_count: 2
+  count_per_process: 5
+  gen_voc: True
+
 provider:
   text:
     - name: english
@@ -51,40 +56,17 @@ provider:
   layout:
     out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output
     rotate_angle_range: (-8, 8)
+    strategy_list:
+      - name: HorizontalStrategy
+        probability: 0.2
+      - name: VerticalStrategy
+        probability: 0.2
+      - name: HorizontalFlowStrategy
+        probability: 0.2
+      - name: VerticalFlowStrategy
+        probability: 0.2
+      - name: RandomPasteStrategy
+        probability: 0.1
+      - name: CustomizationStrategy1
+        probability: 0.1
 
-random_conf:
-  seed: 1
-
-gen_mode_conf:
-  gen_voc: True
-  process_count: 2
-
-
-text_img_conf:
-  rotate_angle_range: (-8, 8)
-  font_min_size: 20
-  use_char_common_color_probability: 0.5
-  char_common_color_list:
-    - (0,0,0,255)
-    - (255,0,0,255)
-  char_border_width: 0
-  char_border_color: (255,255,0,255)
-
-
-text_gen_conf:
-  characters_len_range: (2,20)
-  gen_probability: [0.2,0.2,0.2,0.2,0.2]
-  random_choice: False
-
-layout_gen_conf:
-  out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output
-  gen_count: 5
-
-# layout strategy
-layout_strategy_conf:
-  HorizontalStrategy: 0.2
-  VerticalStrategy: 0.2
-  HorizontalFlowStrategy: 0.2
-  VerticalFlowStrategy: 0.2
-  RandomPasteStrategy: 0.1
-  CustomizationStrategy1: 0.1

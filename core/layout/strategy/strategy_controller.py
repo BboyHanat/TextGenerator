@@ -33,17 +33,17 @@ def get_strategy_by_name(name):
     return None
 
 
-def pick() -> Strategy:
+def pick(strategy_list) -> Strategy:
     """
     选择一个策略
     :return:
     """
-    layout_strategy_conf = dict(conf['layout_strategy_conf'])
-    strategy_list = list(layout_strategy_conf.keys())
-    strategy_values = list(layout_strategy_conf.values())
+    strategy_values = []
+    for strategy in strategy_list:
+        strategy_values.append(float(strategy['probability']))
     index = Random.random_choice(list(strategy_values))
 
-    strategy_name = strategy_list[index]
+    strategy_name = strategy_list[index]['name']
     strategy = get_strategy_by_name(strategy_name)
 
     log.info("pick strategy: {strategy}".format(strategy=strategy_name))

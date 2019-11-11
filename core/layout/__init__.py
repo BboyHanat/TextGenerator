@@ -1,14 +1,14 @@
 from PIL import Image, ImageDraw
-from service.constant import const
-from core.layout.strategy import Strategy
+from constant import const
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
+from core.layout.strategy import Strategy
+from core.element.TextImg import TYPE_ORIENTATION_HORIZONTAL, \
+    TYPE_ORIENTATION_VERTICAL, TextImg
 import os
 import hashlib
 import json
-from core.element.TextImg import TYPE_ORIENTATION_HORIZONTAL, \
-    TYPE_ORIENTATION_VERTICAL, TextImg
 
 
 class Block:
@@ -82,10 +82,16 @@ class TextBlock(Block):
         return self.text_img.orientation
 
 
+class NextBlockGenerator:
+    def auto_gen_next_img_block(self, width, height, strategy, bg_img, block_list, rotate_angle):
+        pass
+
+
 class BlockGroup:
     def __init__(self, bg_img: Image.Image, group_box,
                  rotate_angle_range,
-                 text_img_provider=None):
+                 next_block_generator=None,
+                 strategy_list=[]):
         self.bg_img = bg_img
         self.group_box = group_box
         self.block_list = []
@@ -94,8 +100,9 @@ class BlockGroup:
         self.bg_width = self.bg_img.width
         self.bg_height = self.bg_img.height
         self.rotate_angle_range = rotate_angle_range
+        self.strategy_list = strategy_list
 
-        self.text_img_provider = text_img_provider
+        self.next_block_generator = next_block_generator
 
     def auto_append_block(self):
         """
@@ -103,7 +110,7 @@ class BlockGroup:
         :return:
         """
         from core.layout.strategy import strategy_controller as sc
-        strategy = sc.pick()
+        strategy = sc.pick(self.strategy_list)
         # 尝试生成3次 提高贴图成功率
         retry_times = 5
         while retry_times > 0:
@@ -129,18 +136,17 @@ class BlockGroup:
         生成一个block
         :return:
         """
-        from service import text_img_provider
 
-        text_img = text_img_provider.auto_gen_next_img(width=self.width,
-                                                       height=self.height,
-                                                       strategy=strategy,
-                                                       bg_img=self.bg_img,
-                                                       block_list=self.block_list)
-        if text_img:
-            # 文本贴图旋转角度
-            rotate_angle = Random.random_int(self.rotate_angle_range[0], self.rotate_angle_range[1])
-            text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle)
-            return text_block
+        rotate_angle = Random.random_int(self.rotate_angle_range[0], self.rotate_angle_range[1])
+
+        block = self.next_block_generator.auto_gen_next_img_block(width=self.width,
+                                                                  height=self.height,
+                                                                  strategy=strategy,
+                                                                  bg_img=self.bg_img,
+                                                                  block_list=self.block_list,
+                                                                  rotate_angle=rotate_angle,
+                                                                  )
+        return block
 
     def preview(self, draw_rect=False):
         """
@@ -189,15 +195,16 @@ class Layout:
                  out_put_dir: str,
                  rotate_angle_range,
                  group_box_list: list = [],
-                 text_img_provider=None):
+                 next_block_generator=None,
+                 strategy_list=[]):
         self.bg_img = bg_img
         self.out_put_dir = out_put_dir
         self.group_box_list = group_box_list
-        self.text_img_provider = text_img_provider
+        self.next_block_generator = next_block_generator
 
         self.block_group_list = []
         for group_box in self.group_box_list:
-            block_group = BlockGroup(bg_img, group_box, rotate_angle_range, self.text_img_provider)
+            block_group = BlockGroup(bg_img, group_box, rotate_angle_range, self.next_block_generator, strategy_list)
             self.block_group_list.append(block_group)
 
     def get_all_block_list(self):
@@ -307,24 +314,6 @@ class Layout:
         """
         for block_group in self.block_group_list:
             block_group.render(draw_rect=draw_rect, on_origin=True)
-
-
-def layout_factory(bg_img: Image.Image,
-                   group_box_list: list,
-                   text_img_provider,
-                   out_put_dir,
-                   ) -> Layout:
-    """
-    生成layout的工厂方法
-    :param bg_img:
-    :param group_box_list:
-    :param text_img_provider:
-    :param out_put_dir:
-    :return:
-    """
-    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list,
-                    text_img_provider=text_img_provider)
-    return layout
 
 
 if __name__ == '__main__':

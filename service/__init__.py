@@ -55,7 +55,7 @@ def run():
 
 def start():
     init()
-    process_count = conf['gen_mode_conf']['process_count']
+    process_count = conf['base']['process_count']
     print('Parent process {pid}.'.format(pid=os.getpid()))
     print('process count : {process_count}'.format(process_count=process_count))
 

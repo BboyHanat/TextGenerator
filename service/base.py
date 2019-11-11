@@ -37,7 +37,7 @@ def gen_all_pic():
     :return:
     """
     from service import conf
-    gen_count = conf['layout_gen_conf']['gen_count']
+    gen_count = conf['base']['count_per_process']
 
     index = 0
     while index < gen_count:
@@ -48,7 +48,7 @@ def gen_all_pic():
         if dump_data:
             add_label_data(dump_data)
             # 生成voc
-            if conf['gen_mode_conf']['gen_voc']:
+            if conf['base']['gen_voc']:
                 gen_voc(dump_data)
                 index += 1
 
@@ -72,7 +72,7 @@ def add_label_data(layout_data):
     :return:
     """
     from service import conf
-    out_put_dir = conf['layout_gen_conf']['out_put_dir']
+    out_put_dir = conf['provider']['layout']['out_put_dir']
     label_data_dir = get_label_data_dir(out_put_dir=out_put_dir)
     os.makedirs(label_data_dir, exist_ok=True)
 
@@ -101,7 +101,7 @@ def gen_voc(layout_data):
     :return:
     """
     from service import conf
-    out_put_dir = conf['layout_gen_conf']['out_put_dir']
+    out_put_dir = conf['provider']['layout']['out_put_dir']
     voc_data_dir = get_voc_data_dir(out_put_dir=out_put_dir)
 
     voc_img_dir = os.path.join(voc_data_dir, "voc_img")

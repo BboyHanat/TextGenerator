@@ -1,5 +1,6 @@
 import cv2
 from typing import List
+from core.element.BaseImg import BaseImg
 from core.element.CharImg import CharImg
 from PIL import Image, ImageFont, ImageDraw
 import os
@@ -16,7 +17,7 @@ TYPE_ALIGN_MODEL_C = 1  # 文本对齐模式：居中 对齐
 TYPE_ALIGN_MODEL_T = 2  # 文本对齐模式：顶部/右边 对齐
 
 
-class TextImg:
+class TextImg(BaseImg):
     """
     字符串图片对象
     """

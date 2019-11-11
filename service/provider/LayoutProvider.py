@@ -4,10 +4,10 @@ from PIL import Image
 
 
 class LayoutProvider:
-    def __init__(self, out_put_dir, rotate_angle_range):
+    def __init__(self, out_put_dir, rotate_angle_range, strategy_list):
         self.out_put_dir = out_put_dir
         self.rotate_angle_range = eval(rotate_angle_range) if type(rotate_angle_range) is str else rotate_angle_range
-        pass
+        self.strategy_list = strategy_list
 
     def gen_next_layout(self):
         from service import background_img_provider
@@ -18,7 +18,8 @@ class LayoutProvider:
             bg_img=bg_img,
             group_box_list=group_box_list,
             out_put_dir=self.out_put_dir,
-            rotate_angle_range=self.rotate_angle_range
+            rotate_angle_range=self.rotate_angle_range,
+            strategy_list=self.strategy_list
         )
         layout.gen()
         return layout
@@ -27,7 +28,8 @@ class LayoutProvider:
 def layout_factory(bg_img: Image.Image,
                    group_box_list: list,
                    out_put_dir,
-                   rotate_angle_range
+                   rotate_angle_range,
+                   strategy_list
                    ) -> Layout:
     """
     生成layout的工厂方法
@@ -35,11 +37,16 @@ def layout_factory(bg_img: Image.Image,
     :param group_box_list:
     :param out_put_dir:
     :param rotate_angle_range:
+    :param strategy_list:
     :return:
     """
     from service import text_img_provider
-    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list,
-                    text_img_provider=text_img_provider, rotate_angle_range=rotate_angle_range)
+    layout = Layout(bg_img=bg_img,
+                    out_put_dir=out_put_dir,
+                    group_box_list=group_box_list,
+                    next_block_generator=text_img_provider,
+                    rotate_angle_range=rotate_angle_range,
+                    strategy_list=strategy_list)
     return layout
 
 

@@ -1,7 +1,7 @@
 import os
 import time
 from typing import List
-from service.constant import const
+from constant import const
 from utils.decorator import singleton
 from utils.random_tools import Random
 from core.element.CharImg import CharImg
@@ -12,6 +12,7 @@ from core.layout.strategy.VerticalStrategy import VerticalStrategy
 from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
 from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
 from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
+from core.layout import TextBlock, NextBlockGenerator
 from utils import font_tool
 import numpy as np
 import cv2
@@ -33,7 +34,7 @@ def list_font_path(font_file_dir):
 
 
 @singleton
-class TextImgProvider:
+class TextImgProvider(NextBlockGenerator):
 
     def __init__(self, font_file_dir, text_img_output_dir, text_img_info_output_dir, font_min_size,
                  use_char_common_color_probability,
@@ -197,6 +198,15 @@ class TextImgProvider:
                                          align_mode=align,
                                          font_path=fp)
             return text_img
+
+    def auto_gen_next_img_block(self, width, height, strategy, bg_img, block_list, rotate_angle):
+        next_img = self.auto_gen_next_img(width=width,
+                                          height=height,
+                                          strategy=strategy,
+                                          bg_img=bg_img,
+                                          block_list=block_list)
+        if next_img:
+            return TextBlock(text_img=next_img, margin=10, rotate_angle=rotate_angle)
 
 
 if __name__ == '__main__':

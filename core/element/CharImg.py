@@ -1,7 +1,8 @@
 import json
+from core.element.BaseImg import BaseImg
 
 
-class CharImg:
+class CharImg(BaseImg):
     """
     字符图片对象
     """
