@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 from libs import nms
 from libs import select_by_kp
+from libs import box_connect
 
 
 def _whctrs(anchor):
@@ -77,7 +78,8 @@ class SmoothAreaProvider(object):
         self._down_scale = down_scale
         self._anchor_ratio = eval(anchor_ratio) if type(anchor_ratio) == str else anchor_ratio
         self._anchor_scale = eval(anchor_scale) if type(anchor_scale) == str else anchor_scale
-        self._fast = cv2.FastFeatureDetector_create()
+        # self._fast = cv2.FastFeatureDetector_create()
+        self._fast = cv2.ORB_create(nfeatures=3000)
 
     def get_image_rects(self, image_in, long_side=320):
         """
@@ -109,11 +111,8 @@ class SmoothAreaProvider(object):
         image_process = cv2.resize(image_process, (new_w, new_h))
         anchors, length = self.generate_anchors_pre(new_h, new_w)
 
-        key_points = self._fast.detect(image_process, None)
-        kp_image = np.zeros((new_h, new_w), dtype=np.uint8)
-        for kp in key_points:
-            kp_image[int(kp.pt[1]), int(kp.pt[0])] = 1
-
+        # key_points = self._fast.detect(image_process, None)
+        kp_image = cv2.Canny(image_process, 50, 150) // 255
         sum_arr = np.zeros((new_h, new_w), np.float32)
         image_integral = cv2.integral(kp_image, sum_arr, cv2.CV_32FC1)
         anchor_preserved = select_by_kp(image_integral, anchors)
@@ -122,12 +121,20 @@ class SmoothAreaProvider(object):
         if length > 0:
             keep = nms(anchor_preserved, 0.00001)
             anchor_preserved = anchor_preserved[keep, :]
+            anchor_preserved = box_connect(image_integral, anchor_preserved, 30, new_w, new_h)
+            keep = nms(anchor_preserved, 0.00001)
+            anchor_preserved = anchor_preserved[keep, :]
+
         for i in range(anchor_preserved.shape[0]):
             anchor_preserved[i, :] = anchor_preserved[i, :] * scale
-        anchor_preserved = anchor_preserved[:, 0:4]
-        anchor_preserved = np.asarray(anchor_preserved, np.int32)
-        anchor_preserved = list(anchor_preserved)
-        return anchor_preserved
+        if anchor_preserved.shape[0] > 0:
+            anchor_out = anchor_preserved[:, 0:4]
+            score = anchor_preserved[:, 4]
+            anchor_out = np.asarray(anchor_out, np.int32)
+            anchor_out = list(anchor_out)
+            return anchor_out
+        else:
+            return list()
 
     def generate_anchors_pre(self, height, width):
         """ A wrapper function to generate anchors given different scales
@@ -164,11 +171,10 @@ class SmoothAreaProvider(object):
 
 if __name__ == '__main__':
     smooth = SmoothAreaProvider()
-    image = cv2.imread("/Users/aidaihanati/TezignProject/TextGenerator/5.jpg")
+    image = cv2.imread("/Users/aidaihanati/TezignProject/TextGenerator/6.jpeg")
     rects = smooth.get_image_rects(image)
     for rect in rects:
-        cv2.rectangle(image, (rect[0], rect[1]), (rect[2], rect[3]), (120, 78, 180), 2)
+        cv2.rectangle(image, (rect[0], rect[1]), (rect[2], rect[3]), (120, 78, 255), 2)
     cv2.imwrite('test.jpg', image)
     cv2.imshow("test", image)
     cv2.waitKey(3000)
-

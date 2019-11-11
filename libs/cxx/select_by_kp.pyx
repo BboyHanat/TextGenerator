@@ -1,7 +1,7 @@
 import numpy as np
 cimport numpy as np
 from libc.stdio cimport printf
-from cython.parallel import prange, parallel, threadid
+# from cython.parallel import prange, parallel, threadid
 
 cdef np.float32_t sigmoid(np.float32_t x):
     return 1.0 / (1.0 + np.exp(-x))
@@ -43,6 +43,7 @@ def select_by_kp(np.ndarray[np.float32_t, ndim=2] imageIntegral, np.ndarray[np.f
         count += 1
         integral = 0.0
     return anchor_preserved
+
 
 def nms(np.ndarray[np.float32_t, ndim=2] dets, np.float thresh):
     """
@@ -102,3 +103,85 @@ def nms(np.ndarray[np.float32_t, ndim=2] dets, np.float thresh):
                 suppressed[j] = 1
 
     return keep
+
+
+cdef inline np.int vertical_similarity(np.ndarray[np.float32_t, ndim=1] box1, np.ndarray[np.float32_t, ndim=1] box2, np.float iou_thresh):
+
+    cdef float intersec_height = min(box1[3], box2[3]) - max(box1[1], box2[1])
+    cdef float union_height = max(box1[3], box2[3]) - min(box1[1], box2[1])
+    cdef float iou = intersec_height / union_height
+    if iou > iou_thresh:
+        return 1
+    else:
+        return 0####
+
+
+def box_connect(np.ndarray[np.float32_t, ndim=2] imageIntegral, np.ndarray[np.float32_t, ndim=2] anchors_in, np.int h_gap, np.int width, np.int height):
+    """
+
+    :param imageIntegral:
+    :param anchor:
+    :return:
+    """
+
+    cdef int length = anchors_in.shape[0]
+    cdef np.ndarray[np.float32_t, ndim=2] anchors = anchors_in[:, 0:4]
+    cdef int x1, y1, x2, y2
+    cdef float area, original_area, integral=0.0
+    cdef int iou
+    cdef float image_area = float(width * height)
+    # left to right search
+    for box_index1 in range(length):
+        box1 = anchors[box_index1, :]
+        for box_index2 in range(length):
+            box2 = anchors[box_index2, :]
+            iou = vertical_similarity(box1, box2, 0.6)
+            if box1[2] <= box2[0] <= (box1[2] + h_gap) and iou==1:
+                x1 = box1[0]
+                y1 = int(min(box1[1], box2[1]))
+                x2 = box2[2]
+                y2 = int(max(box1[3], box2[3]))
+                integral = imageIntegral[y2, x2] - imageIntegral[y2, x1] - imageIntegral[y1, x2] + imageIntegral[y1, x1]
+                area = float((y2 - y1) * (x2 - x1))
+                if integral<1:
+                    area = area / image_area
+                    anchors_in[box_index1, 0] = float(x1)
+                    anchors_in[box_index1, 1] = float(y1)
+                    anchors_in[box_index1, 2] = float(x2)
+                    anchors_in[box_index1, 3] = float(y2)
+                    anchors_in[box_index1, 4] = area
+                    continue
+
+                x1 = box1[0]
+                y1 = int(min(box1[1], box2[1]))
+                x2 = box2[2]
+                y2 = int(min(box1[3], box2[3]))
+                integral = imageIntegral[y2, x2] - imageIntegral[y2, x1] - imageIntegral[y1, x2] + imageIntegral[y1, x1]
+                area = float((y2 - y1) * (x2 - x1))
+                original_area = float((box1[2]-box1[0])*(box1[3]-box1[1])+ (box2[2]-box2[0])*(box2[3]-box2[1]))
+                if integral<1 and area > original_area:
+                    area = area / image_area
+                    anchors_in[box_index1, 0] = float(x1)
+                    anchors_in[box_index1, 1] = float(y1)
+                    anchors_in[box_index1, 2] = float(x2)
+                    anchors_in[box_index1, 3] = float(y2)
+                    anchors_in[box_index1, 4] = area
+                    continue
+
+                x1 = box1[0]
+                y1 = int(max(box1[1], box2[1]))
+                x2 = box2[2]
+                y2 = int(max(box1[3], box2[3]))
+                integral = imageIntegral[y2, x2] - imageIntegral[y2, x1] - imageIntegral[y1, x2] + imageIntegral[y1, x1]
+                area = float((y2 - y1) * (x2 - x1))
+                original_area = float((box1[2]-box1[0])*(box1[3]-box1[1])+ (box2[2]-box2[0])*(box2[3]-box2[1]))
+                if integral<1 and area > original_area:
+                    area = area / image_area
+                    anchors_in[box_index1, 0] = float(x1)
+                    anchors_in[box_index1, 1] = float(y1)
+                    anchors_in[box_index1, 2] = float(x2)
+                    anchors_in[box_index1, 3] = float(y2)
+                    anchors_in[box_index1, 4] = area
+                    continue
+
+    return anchors_in
