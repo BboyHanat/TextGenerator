@@ -26,7 +26,7 @@ class RandomCorpusGen(object):
 
     def _get_random(self):
         while True:
-            seek = Random.random_int(0, self._corpus_length-1)
+            seek = Random.random_int(0, self._corpus_length - 1)
             yield self._character_seq[seek]
 
     def _get_next_batch(self):
@@ -43,7 +43,7 @@ class RandomCharacterGen(object):
         """
 
         :param character_seq:
-        :param batch_size:
+        :param len_range:
         """
         self._character_seq = character_seq
         self._len_range = len_range
@@ -73,89 +73,8 @@ class RandomCharacterGen(object):
 
 
 class TextProvider:
-    def __init__(self,
-                 chinese_corpus_path: str,
-                 english_corpus_path: str,
-                 random_character_path: str,
-                 specific_business_corpus_path: str,
-                 specific_scene_character_path: str,
-                 characters_len_range: tuple,
-                 gen_probability: list,
-                 random_choice=False
-                 ):
-        """
-
-        :param chinese_corpus_path: str
-        :param english_corpus_path: str
-        :param random_character_path: str
-        :param specific_business_corpus_path: str
-        :param specific_scene_character_path: str
-        :param characters_len_range: (2,15)
-        :param gen_probability: [0.5,0.3,0.1,0.1]
-        :param random_choice: False
-        """
-        self._chinese_corpus_path = chinese_corpus_path
-        self._english_corpus_path = english_corpus_path
-        self._random_character_path = random_character_path
-        self._specific_business_corpus_path = specific_business_corpus_path
-        self._specific_scene_character_path = specific_scene_character_path
-        self.gen_probability = gen_probability
-        self._random_choice = random_choice
-
-        self._chinese_corpus_gen, self._english_corpus_gen, self._random_character_gen, self._business_scene_character_gen, \
-        self._specific_scene_character_gen = self._init_generators(characters_len_range)
-        self._all_generator = [self._chinese_corpus_gen, self._english_corpus_gen, self._random_character_gen,
-                               self._business_scene_character_gen, self._specific_scene_character_gen]
-        self.gen = self.get_generator()
-
-    def _init_generators(self, characters_len_range: tuple):
-        """
-        init all generator
-        :param characters_len_range:
-        :return:
-        """
-        chinese_corpus_gen = None
-        if self._chinese_corpus_path:
-            with open(self._chinese_corpus_path, 'r') as fp:
-                chinese_corpus_list = fp.readlines()
-            chinese_corpus_list = self._replace_useless(chinese_corpus_list)
-            if not chinese_corpus_list == []:
-                chinese_corpus_gen = RandomCorpusGen(chinese_corpus_list, characters_len_range)
-
-        english_corpus_gen = None
-        if self._english_corpus_path:
-            with open(self._english_corpus_path, 'r') as fp:
-                english_corpus_list = fp.readlines()
-            english_corpus_list = self._replace_useless(english_corpus_list)
-            if not english_corpus_list == []:
-                english_corpus_gen = RandomCorpusGen(english_corpus_list, characters_len_range)
-
-        random_character_gen = None
-        if self._random_character_path:
-            with open(self._random_character_path, 'r') as fp:
-                random_character_list = list(fp.readline())
-            random_character_list = self._replace_useless(random_character_list)
-            if not random_character_list == []:
-                random_character_gen = RandomCharacterGen(random_character_list, characters_len_range)
-
-        business_scene_character_gen = None
-        if self._specific_business_corpus_path:
-            with open(self._specific_business_corpus_path, 'r') as fp:
-                business_scene_character_list = list(fp.readlines())
-            business_scene_character_list = self._replace_useless(business_scene_character_list)
-            if not business_scene_character_list == []:
-                business_scene_character_gen = RandomCorpusGen(business_scene_character_list, characters_len_range)
-
-
-        specific_scene_character_gen = None
-        if self._specific_scene_character_path:
-            with open(self._specific_scene_character_path, 'r') as fp:
-                specific_scene_character_list = list(fp.readlines())
-            specific_scene_character_list = self._replace_useless(specific_scene_character_list)
-            if not specific_scene_character_list == []:
-                specific_scene_character_gen = RandomCorpusGen(specific_scene_character_list, characters_len_range)
-
-        return chinese_corpus_gen, english_corpus_gen, random_character_gen, business_scene_character_gen, specific_scene_character_gen
+    def __init__(self, corpus_list):
+        self.gen = self.get_generator(corpus_list)
 
     @staticmethod
     def _replace_useless(character_obj):
@@ -178,17 +97,29 @@ class TextProvider:
             character_obj = character_obj.replace(' ', '')
         return character_obj
 
-    def get_generator(self):
-        """
-        generator
-        :param gen_probability_dict:
-        :return:
-        """
-        value_list = self.gen_probability
+    def get_generator(self, corpus_list):
+        _all_generator = []
+        gen_probability_list = []
+
+        for corpus in corpus_list:
+            gen_probability_list.append(float(corpus['probability']))
+
+            with open(corpus['path'], 'r') as fp:
+                if corpus['type'] == 'line':
+                    data = fp.readlines()
+                    data = self._replace_useless(data)
+                    generator = RandomCorpusGen(data, eval(corpus['len_range']))
+                    _all_generator.append(generator)
+                elif corpus['type'] == 'word':
+                    data = fp.readline()
+                    data = self._replace_useless(data)
+                    generator = RandomCharacterGen(list(data), eval(corpus['len_range']))
+                    _all_generator.append(generator)
+
         while True:
-            index = Random.random_choice(list(value_list))
-            if self._all_generator[index]:
-                yield self._all_generator[index].get_next.__next__()
+            index = Random.random_choice(gen_probability_list)
+            if _all_generator[index]:
+                yield _all_generator[index].get_next.__next__()
 
     def generator(self):
         return self.gen.__next__()
