@@ -4,6 +4,7 @@ from service.provider.TextImgProvider import TextImgProvider
 from service.provider.BackgroundImgProvider import BackgroundImgProvider
 from service.provider.TextProvider import TextProvider
 from service.provider.SmoothAreaProvider import SmoothAreaProvider
+from service.provider.LayoutProvider import LayoutProvider
 from utils import log
 from multiprocessing import Pool
 import traceback
@@ -15,6 +16,7 @@ text_img_provider: TextImgProvider
 background_img_provider: BackgroundImgProvider
 text_provider: TextProvider
 smooth_area_provider: SmoothAreaProvider
+layout_provider: LayoutProvider
 
 
 def load_from_config():
@@ -22,17 +24,13 @@ def load_from_config():
     global background_img_provider
     global text_provider
     global smooth_area_provider
+    global layout_provider
 
-    text_img_provider = TextImgProvider(
-        seed=conf['random_conf']['seed'],
-        font_file_dir=conf['path_conf']['font_file_dir'],
-        text_img_output_dir=conf['path_conf']['text_img_output_dir'],
-        text_img_info_output_dir=conf['path_conf']['text_img_info_output_dir']
-    )
-
+    text_img_provider = TextImgProvider(**conf['provider']['text_img'])
     background_img_provider = BackgroundImgProvider(conf['provider']['bg_img'])
     text_provider = TextProvider(conf['provider']['text'])
     smooth_area_provider = SmoothAreaProvider(**conf['provider']['smooth_area'])
+    layout_provider = LayoutProvider(**conf['provider']['layout'])
 
 
 def init_config():

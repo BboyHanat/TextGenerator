@@ -1,4 +1,3 @@
-from service.provider.TextImgProvider import TextImg
 from PIL import Image, ImageDraw
 from service.constant import const
 from core.layout.strategy import Strategy
@@ -7,12 +6,16 @@ from service.provider.TextImgProvider import TextImgProvider
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
-from utils import font_tool
-import numpy as np
-import cv2
 import os
 import hashlib
 import json
+from core.element.TextImg import TYPE_ORIENTATION_HORIZONTAL, \
+    TYPE_ORIENTATION_VERTICAL, TextImg
+from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
+from core.layout.strategy.VerticalStrategy import VerticalStrategy
+from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
+from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
+from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
 
 
 class Block:
@@ -38,7 +41,6 @@ class Block:
         pass
 
     def get_orientation(self):
-        from service.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL
         if self.inner_width > self.inner_height:
             return TYPE_ORIENTATION_HORIZONTAL
         else:
@@ -68,9 +70,8 @@ class Block:
 
 
 class TextBlock(Block):
-    def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0, font_path=""):
+    def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0):
         self.img = text_img.img
-        self.font_path = font_path
         super().__init__(self.img, inner_x, inner_y, margin=margin, rotate_angle=rotate_angle)
         # todo:字符边框坐标位置的重新计算
         # for char_obj in text_img.char_obj_list:
@@ -89,7 +90,10 @@ class TextBlock(Block):
 
 
 class BlockGroup:
-    def __init__(self, bg_img: Image.Image, group_box, text_provider: TextProvider = None, text_img_provider=None):
+    def __init__(self, bg_img: Image.Image, group_box,
+                 rotate_angle_range,
+                 text_provider: TextProvider = None,
+                 text_img_provider=None):
         self.bg_img = bg_img
         self.group_box = group_box
         self.block_list = []
@@ -97,6 +101,7 @@ class BlockGroup:
         self.height = group_box[3] - group_box[1]
         self.bg_width = self.bg_img.width
         self.bg_height = self.bg_img.height
+        self.rotate_angle_range = rotate_angle_range
 
         self.text_provider = text_provider
         self.text_img_provider = text_img_provider
@@ -133,17 +138,7 @@ class BlockGroup:
         生成一个block
         :return:
         """
-        from service.provider.TextImgProvider import text_img_generator, TYPE_ORIENTATION_HORIZONTAL, \
-            TYPE_ORIENTATION_VERTICAL, TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C
-        from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
-        from core.layout.strategy.VerticalStrategy import VerticalStrategy
-        from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
-        from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
-        from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
-        from service import conf
-
-        text = "".join(self.text_provider.gen.__next__())
-        fp = self.text_img_provider.next_font_path()
+        from service import text_img_provider
 
         if isinstance(strategy, HorizontalStrategy):
             orientation = TYPE_ORIENTATION_VERTICAL
@@ -161,36 +156,13 @@ class BlockGroup:
         else:
             orientation = Random.random_choice_list(
                 [TYPE_ORIENTATION_VERTICAL, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_HORIZONTAL])
-        align = Random.random_choice_list([TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T, TYPE_ALIGN_MODEL_C])
 
-        v = min(self.width, self.height)
-        # 设置字体大小
-        font_size = Random.random_int(v // 20, v // 10)
-        font_min_size = int(conf['text_img_conf']['font_min_size'])
-        if font_size < font_min_size:
-            font_size = font_min_size
-
-        # 文本贴图旋转角度
-        rotate_angle_range = (eval(conf['text_img_conf']['rotate_angle_range']))
-        rotate_angle = Random.random_int(rotate_angle_range[0], rotate_angle_range[1])
-
-        char_border_width = conf['text_img_conf']['char_border_width']
-        char_border_color = eval(conf['text_img_conf']['char_border_color'])
-
-        # 剔除不存在的文字
-        text = "".join(filter(lambda c: font_tool.check(c, font_path=fp), text))
-        if len(text) >= 2:
-            # 生成文本图片
-            text_img = text_img_generator.gen_text_img(self.text_img_provider, text,
-                                                       font_size=font_size,
-                                                       border_width=char_border_width,
-                                                       border_color=char_border_color,
-                                                       color=self.get_fontcolor(),
-                                                       orientation=orientation,
-                                                       align_mode=align,
-                                                       font_path=fp)
-
-            text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle, font_path=fp)
+        text_img = text_img_provider.auto_gen_next_text_img(width=self.width, height=self.height,
+                                                            orientation=orientation, bg_img=self.bg_img)
+        if text_img:
+            # 文本贴图旋转角度
+            rotate_angle = Random.random_int(self.rotate_angle_range[0], self.rotate_angle_range[1])
+            text_block = TextBlock(text_img=text_img, margin=10, rotate_angle=rotate_angle)
             return text_block
 
     def preview(self, draw_rect=False):
@@ -233,43 +205,12 @@ class BlockGroup:
         sub_img = bg_img.crop(self.group_box)
         return sub_img
 
-    def get_fontcolor(self):
-        """
-        get font color by mean
-        :param image:
-        :return:
-        """
-        from service import conf
-        use_char_common_color_probability = conf['text_img_conf']['use_char_common_color_probability']
-        char_common_color_list = conf['text_img_conf']['char_common_color_list']
-
-        if Random.random_float(0, 1) <= use_char_common_color_probability and char_common_color_list:
-            return eval(Random.random_choice_list(char_common_color_list))
-        else:
-            image = np.asarray(self.bg_img)
-            lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2Lab)
-
-            bg = lab_image[:, :, 0]
-            l_mean = np.mean(bg)
-
-            new_l = Random.random_int(0, 127 - 80) if l_mean > 127 else Random.random_int(127 + 80, 255)
-            new_a = Random.random_int(0, 255)
-            new_b = Random.random_int(0, 255)
-
-            lab_rgb = np.asarray([[[new_l, new_a, new_b]]], np.uint8)
-            rbg = cv2.cvtColor(lab_rgb, cv2.COLOR_Lab2RGB)
-
-            r = rbg[0, 0, 0]
-            g = rbg[0, 0, 1]
-            b = rbg[0, 0, 2]
-
-            return (r, g, b, 255)
-
 
 class Layout:
     def __init__(self,
                  bg_img: Image.Image,
                  out_put_dir: str,
+                 rotate_angle_range,
                  group_box_list: list = [],
                  text_provider: TextProvider = None,
                  text_img_provider: TextImgProvider = None):
@@ -281,7 +222,7 @@ class Layout:
 
         self.block_group_list = []
         for group_box in self.group_box_list:
-            block_group = BlockGroup(bg_img, group_box, self.text_provider, self.text_img_provider)
+            block_group = BlockGroup(bg_img, group_box, rotate_angle_range, self.text_provider, self.text_img_provider)
             self.block_group_list.append(block_group)
 
     def get_all_block_list(self):
@@ -318,8 +259,6 @@ class Layout:
 
     @count_time(tag="区块片收集")
     def collect_block_fragment(self):
-        from service.provider.TextImgProvider import TYPE_ORIENTATION_HORIZONTAL
-
         fragment_info_list = []
         for block in self.get_all_block_list():
             fragment_img = block.crop_self(self.bg_img)
@@ -331,7 +270,6 @@ class Layout:
                 "box": fragment_box,
                 "data": fragment_data,
                 "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
-                "font": block.font_path.split(os.sep)[-1] if isinstance(block, TextBlock) else "",
                 "type": str(block.__class__.__name__)
             }
             fragment_info_list.append(item)

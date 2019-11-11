@@ -10,6 +10,7 @@ import cv2
 import math
 import numpy as np
 from utils.random_tools import Random
+from PIL import Image
 
 
 class DirImageGen(object):
@@ -162,7 +163,10 @@ class BackgroundImgProvider(object):
         while True:
             index = Random.random_choice(list(value_list))
             if index <= len_gen and all_generator[index]:
-                yield all_generator[index].get_next.__next__()
+                np_img = all_generator[index].get_next.__next__()
+                np_img = np_img[..., ::-1]
+                img = Image.fromarray(np_img, mode='RGB')
+                yield img
 
     def generator(self):
         return self.gen.__next__()

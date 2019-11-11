@@ -37,14 +37,20 @@ provider:
       probability: 0.2
       width_range: (1000, 1500)
       height_range: (1000, 1500)
-
-
-
-path_conf:
-  # text render config
-  font_file_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/font
-  text_img_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img
-  text_img_info_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info
+  text_img:
+    font_file_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/font
+    text_img_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img
+    text_img_info_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info
+    font_min_size: 20
+    use_char_common_color_probability: 0.5
+    char_common_color_list:
+      - (0,0,0,255)
+      - (255,0,0,255)
+    char_border_width: 0
+    char_border_color: (255,255,0,255)
+  layout:
+    out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output
+    rotate_angle_range: (-8, 8)
 
 random_conf:
   seed: 1
@@ -53,16 +59,11 @@ gen_mode_conf:
   gen_voc: True
   process_count: 2
 
-text_bg_img_conf:
-  img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
-  gen_random_image: 1 # 1:True , 0:False
-  gen_image_width: 1280
-  gen_image_height: 1080
 
 text_img_conf:
   rotate_angle_range: (-8, 8)
-  use_char_common_color_probability: 0.5
   font_min_size: 20
+  use_char_common_color_probability: 0.5
   char_common_color_list:
     - (0,0,0,255)
     - (255,0,0,255)

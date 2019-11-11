@@ -1,12 +1,7 @@
-from core.layout import layout_factory
-from service import text_img_provider, background_img_provider, text_provider, smooth_area_provider, conf
-from PIL import Image
 from lxml.etree import Element, SubElement, tostring
-from utils.decorator import count_time
 from utils import log
 import shutil
 import os
-import numpy as np
 
 
 def get_pic_dir(out_put_dir):
@@ -41,6 +36,7 @@ def gen_all_pic():
     生成全部图片
     :return:
     """
+    from service import conf
     gen_count = conf['layout_gen_conf']['gen_count']
 
     index = 0
@@ -58,38 +54,9 @@ def gen_all_pic():
 
 
 def gen_pic():
-    out_put_dir = conf['layout_gen_conf']['out_put_dir']
+    from service import layout_provider
+    layout = layout_provider.gen_next_layout()
 
-    bg_img = load_bg_img()
-
-    # 智能候选区选取逻辑
-    width = bg_img.width
-    height = bg_img.height
-    to_width = 320
-    to_height = 320
-    rw = width / to_width
-    rh = height / to_height
-    bg_img_copy = bg_img.resize(size=(to_width, to_height))
-    calc_group_box_list = smooth_area_provider.get_image_rects(np.asarray(bg_img_copy))
-    group_box_list = []
-    for box in calc_group_box_list:
-        group_box_list.append([int(box[0] * rw),
-                               int(box[1] * rh),
-                               int(box[2] * rw),
-                               int(box[3] * rh)])
-
-    # 如果智能候选区域为空，则随机生成候选区
-    if not group_box_list:
-        group_box_list = test_gen_group_box(bg_img)
-
-    layout = layout_factory(
-        bg_img=bg_img,
-        group_box_list=group_box_list,
-        text_provider=text_provider,
-        text_img_provider=text_img_provider,
-        out_put_dir=out_put_dir
-    )
-    layout.gen()
     if not layout.is_empty():
         dump_data = layout.dump()
         # layout.show(draw_rect=True)
@@ -104,6 +71,7 @@ def add_label_data(layout_data):
     写入标签文件
     :return:
     """
+    from service import conf
     out_put_dir = conf['layout_gen_conf']['out_put_dir']
     label_data_dir = get_label_data_dir(out_put_dir=out_put_dir)
     os.makedirs(label_data_dir, exist_ok=True)
@@ -132,6 +100,7 @@ def gen_voc(layout_data):
     生成voc数据集
     :return:
     """
+    from service import conf
     out_put_dir = conf['layout_gen_conf']['out_put_dir']
     voc_data_dir = get_voc_data_dir(out_put_dir=out_put_dir)
 
@@ -209,53 +178,3 @@ def _gen_voc(save_dir, data, image_format='jpg'):
     save_xml = os.path.join(save_dir, data['pic_name'].replace(image_format, 'xml'))
     with open(save_xml, 'wb') as f:
         f.write(xml)
-
-
-def test_gen_group_box(bg_img):
-    """
-    临时用来生成候选区域的方法，等智能候选区选择算法补充之后，将此处逻辑替换掉
-    :param bg_img:
-    :return:
-    """
-    from utils.random_tools import Random
-    from core.layout.strategy import check_two_box_is_overlap
-
-    w = bg_img.width
-    h = bg_img.height
-    min_w = w // 4
-    min_h = h // 4
-
-    def gen_one_box():
-        l = Random.random_int(0, w)
-        t = Random.random_int(0, h)
-        r = int(l + min_w * Random.random_float(1, 3))
-        b = int(t + min_h * Random.random_float(1, 2))
-        box = (l, t, r, b)
-        if r > w or b > h:
-            return None
-        return box
-
-    group_box_list = []
-    while True:
-        box = gen_one_box()
-        if box:
-            need_stop = len(group_box_list) >= 5
-            for gb in group_box_list:
-                if check_two_box_is_overlap(gb, box):
-                    need_stop = True
-                    break
-            if need_stop:
-                break
-            group_box_list.append(box)
-        else:
-            continue
-    return group_box_list
-
-
-@count_time(tag="load_background_img")
-def load_bg_img():
-    np_img = background_img_provider.gen.__next__()
-    # bgr 转 rgb
-    np_img = np_img[..., ::-1]
-    img = Image.fromarray(np_img, mode='RGB')
-    return img
