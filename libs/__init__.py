@@ -7,3 +7,4 @@ Desc:
 """
 from libs.select_by_kp import select_by_kp
 from libs.select_by_kp import nms
+from libs.select_by_kp import box_connect
