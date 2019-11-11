@@ -30,18 +30,9 @@ def load_from_config():
         text_img_info_output_dir=conf['path_conf']['text_img_info_output_dir']
     )
 
-    background_img_provider = BackgroundImgProvider(
-        bg_img_dir=conf['path_conf']['bgimage_dir'],
-        gen_probability=[
-            float(conf['random_conf']['bgimage_from_dir_probability']),
-            float(conf['random_conf']['bgimage_from_gauss_probability'])],
-        img_format=conf['text_bg_img_conf']['img_can_load_format'],
-        gen_random_image=conf['text_bg_img_conf']['gen_random_image']
-    )
-
+    background_img_provider = BackgroundImgProvider(conf['provider']['bg_img'])
     text_provider = TextProvider(conf['provider']['text'])
-
-    smooth_area_provider = SmoothAreaProvider()
+    smooth_area_provider = SmoothAreaProvider(**conf['provider']['smooth_area'])
 
 
 def init_config():

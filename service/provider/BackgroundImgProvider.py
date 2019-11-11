@@ -9,7 +9,6 @@ import os
 import cv2
 import math
 import numpy as np
-import datetime
 from utils.random_tools import Random
 
 
@@ -132,48 +131,38 @@ class GenrateQuasicrystalImage(object):
 
 class BackgroundImgProvider(object):
 
-    def __init__(self,
-                 bg_img_dir: str,
-                 gen_probability: list,
-                 img_format: list,
-                 gen_random_image=False,
-                 g_width_range=(1000, 1500),
-                 g_height_range=(1000, 1500)
-                 ):
-        """
+    def __init__(self, bg_img_conf):
+        self.gen = self.get_generator(bg_img_conf)
 
-        :param bg_img_dir:
-        :param gen_probability: If gen_random_image is True,  gen_probability like [0.8,0.15,0.05], else,gen_probability like [1,0,0]. gen_probability list sum must be 1.
-        :param img_format: list ['jpg','JPG','PNG'...]
-        :param gen_random_image: True or False, If True, this generator will generate random image, like smooth gauss image or quasicrystal image.
-        :param g_width_range: generate image width
-        :param g_height_range: generate image height
-        """
-        self._bg_img_dir = bg_img_dir
-        self._gen_probability = gen_probability
-        self._gen_random_image = gen_random_image
-
-        img_path = [os.path.join(bg_img_dir, img) for img in os.listdir(bg_img_dir) if
-                    img.split(".")[-1] in img_format and ('.DS' not in img)]
-        dir_img_gen = DirImageGen(img_path)
-        gauss_img_gen = None
-        if gen_random_image:
-            gauss_img_gen = GenrateGaussImage(width_range=g_width_range, height_range=g_height_range)
-        self._all_generator = [dir_img_gen, gauss_img_gen]
-        self.gen = self.get_generator()
-
-    def get_generator(self):
+    def get_generator(self, bg_img_conf):
         """
         generator
-        :param gen_probability_dict:
+        :param bg_img_conf:
         :return:
         """
-        value_list = self._gen_probability
-        len_gen = len(self._all_generator)
+        gen_probability = []
+        all_generator = []
+        for item in bg_img_conf:
+            t = item['type']
+            probability = float(item['probability'])
+            if t == 'from_dir':
+                bg_img_dir = item['dir']
+                img_path_list = [os.path.join(bg_img_dir, img) for img in os.listdir(bg_img_dir) if ('.DS' not in img)]
+                dir_img_gen = DirImageGen(img_path_list)
+                all_generator.append(dir_img_gen)
+            elif t == 'from_generate':
+                width_range = eval(item['width_range'])
+                height_range = eval(item['height_range'])
+                gauss_img_gen = GenrateGaussImage(width_range=width_range, height_range=height_range)
+                all_generator.append(gauss_img_gen)
+            gen_probability.append(probability)
+
+        value_list = gen_probability
+        len_gen = len(all_generator)
         while True:
             index = Random.random_choice(list(value_list))
-            if index <= len_gen and self._all_generator[index]:
-                yield self._all_generator[index].get_next.__next__()
+            if index <= len_gen and all_generator[index]:
+                yield all_generator[index].get_next.__next__()
 
     def generator(self):
         return self.gen.__next__()

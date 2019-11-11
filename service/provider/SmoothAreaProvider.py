@@ -75,8 +75,8 @@ class SmoothAreaProvider(object):
                  anchor_scale=(8, 16, 24, 32, 48, 64, 72, 90)
                  ):
         self._down_scale = down_scale
-        self._anchor_ratio = anchor_ratio
-        self._anchor_scale = anchor_scale
+        self._anchor_ratio = eval(anchor_ratio) if type(anchor_ratio) == str else anchor_ratio
+        self._anchor_scale = eval(anchor_scale) if type(anchor_scale) == str else anchor_scale
         self._fast = cv2.FastFeatureDetector_create()
 
     def get_image_rects(self, image_in, long_side=320):

@@ -25,13 +25,22 @@ provider:
       probability: 0.1
       type: line
       len_range: (2,20)
-
+  smooth_area:
+    down_scale: 32
+    anchor_ratio: (0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6)
+    anchor_scale: (8, 16, 24, 32, 48, 64, 72, 90)
+  bg_img:
+    - type: from_dir
+      dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/img
+      probability: 0.8
+    - type: from_generate
+      probability: 0.2
+      width_range: (1000, 1500)
+      height_range: (1000, 1500)
 
 
 
 path_conf:
-  # image provider config
-  bgimage_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/img
   # text render config
   font_file_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/font
   text_img_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img
@@ -39,9 +48,6 @@ path_conf:
 
 random_conf:
   seed: 1
-  # image provider config
-  bgimage_from_dir_probability: 0.8
-  bgimage_from_gauss_probability: 0.2
 
 gen_mode_conf:
   gen_voc: True
