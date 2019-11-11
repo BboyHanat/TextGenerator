@@ -1,71 +1,73 @@
-path_conf:
-  # text provider config
-  chinese_corpus_path: data/corpus/sentence.txt
-  english_corpus_path: data/corpus/word-en.txt
-  random_character_path: data/corpus/chinese_synthetic.txt
-  specific_business_corpus_path: data/corpus/dianshang.txt
-  specific_scene_character_path: data/corpus/common.txt
-  # image provider config
-  bgimage_dir: /data/User/lijianan/data/ocr_background_img
-  # text render config
-  font_file_dir: /data/User/hanat/TF_CRNN_CTC/data/fonts
-  text_img_output_dir: /hanat/output/text_img
-  text_img_info_output_dir: /hanat/output/text_img_info
-
-random_conf:
-  seed: 1
-  # text provider config
-  chinese_corpus_probability: 0.3
-  english_corpus_probability: 0.3
-  random_character_probability: 0.1
-  specific_scene_character_probability: 0.2
-  # image provider config
-  bgimage_from_dir_probability: 0.8
-  bgimage_from_gauss_probability: 0.2
-
-gen_mode_conf:
-  gen_voc: True
+base:
   process_count: 20
+  count_per_process: 5000
+  gen_voc: True
 
-text_bg_img_conf:
-  img_can_load_format: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
-  gen_random_image: 1 # 1:True , 0:False
-  gen_image_width: 1280
-  gen_image_height: 1080
-
-text_img_conf:
-  rotate_angle_range: (-8, 8)
-  use_char_common_color_probability: 0.5
-  font_min_size: 20
-  char_common_color_list:
-    - (0,0,0,255)
-    - (255,0,0,255)
-  char_border_width: 0
-  char_border_color: (255,255,0,255)
-
-
-text_gen_conf:
-  characters_len_range: (2,20)
-  gen_probability: [0.2,0.2,0.2,0.2,0.2]
-  random_choice: False
-
-layout_gen_conf:
-#  out_put_dir: /hanat/output
-#  out_put_dir: data/output
-  out_put_dir: /data/User/lijianan/data/output
-  gen_count: 5000
-
-# layout strategy
-layout_strategy_conf:
-  HorizontalStrategy: 0.2
-  VerticalStrategy: 0.2
-  HorizontalFlowStrategy: 0.2
-  VerticalFlowStrategy: 0.2
-  RandomPasteStrategy: 0.1
-  CustomizationStrategy1: 0.1
-
-library_conf:
-  os_x_lib_path: libs/libImgSegmentation.dylib
-  centos_lib_path: libs/libImgSegmentation.so
+provider:
+  text:
+    - name: english
+      path: data/corpus/word-en.txt
+      probability: 0.3
+      type: line
+      len_range: (2,20)
+    - name: chinese
+      path: data/corpus/sentence.txt
+      probability: 0.3
+      type: line
+      len_range: (2,20)
+    - name: random_character
+      path: data/corpus/chinese_synthetic.txt
+      probability: 0.1
+      type: word
+      len_range: (2,20)
+    - name: business
+      path: data/corpus/dianshang.txt
+      probability: 0.2
+      type: line
+      len_range: (2,20)
+    - name: scene
+      path: data/corpus/common.txt
+      probability: 0.1
+      type: line
+      len_range: (2,20)
+  smooth_area:
+    down_scale: 32
+    anchor_ratio: (0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6)
+    anchor_scale: (8, 16, 24, 32, 48, 64, 72, 90)
+  bg_img:
+    - type: from_dir
+      dir: /data/User/lijianan/data/ocr_background_img
+      probability: 0.8
+    - type: from_generate
+      probability: 0.2
+      width_range: (1000, 1500)
+      height_range: (1000, 1500)
+  text_img:
+    font_file_dir: /data/User/hanat/TF_CRNN_CTC/data/fonts
+    text_img_output_dir: /hanat/output/text_img
+    text_img_info_output_dir: /hanat/output/text_img_info
+    font_min_size: 20
+    use_char_common_color_probability: 0.5
+    char_common_color_list:
+      - (0,0,0,255)
+      - (255,0,0,255)
+    char_border_width: 0
+    char_border_color: (255,255,0,255)
+  layout:
+    out_put_dir: /data/User/lijianan/data/output
+    rotate_angle_range: (-8, 8)
+    strategy_list:
+      - name: HorizontalStrategy
+        probability: 0.2
+      - name: VerticalStrategy
+        probability: 0.2
+      - name: HorizontalFlowStrategy
+        probability: 0.2
+      - name: VerticalFlowStrategy
+        probability: 0.2
+      - name: RandomPasteStrategy
+        probability: 0.1
+      - name: CustomizationStrategy1
+        probability: 0.1
 
 
