@@ -37,8 +37,8 @@ def layout_factory(bg_img: Image.Image,
     :param rotate_angle_range:
     :return:
     """
-    from service import text_provider, text_img_provider
-    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list, text_provider=text_provider,
+    from service import text_img_provider
+    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list,
                     text_img_provider=text_img_provider, rotate_angle_range=rotate_angle_range)
     return layout
 

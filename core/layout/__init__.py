@@ -1,8 +1,6 @@
 from PIL import Image, ImageDraw
 from service.constant import const
 from core.layout.strategy import Strategy
-from service.provider.TextProvider import TextProvider
-from service.provider.TextImgProvider import TextImgProvider
 from utils.decorator import count_time
 from utils import log
 from utils.random_tools import Random
@@ -11,11 +9,6 @@ import hashlib
 import json
 from core.element.TextImg import TYPE_ORIENTATION_HORIZONTAL, \
     TYPE_ORIENTATION_VERTICAL, TextImg
-from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
-from core.layout.strategy.VerticalStrategy import VerticalStrategy
-from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
-from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
-from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
 
 
 class Block:
@@ -92,7 +85,6 @@ class TextBlock(Block):
 class BlockGroup:
     def __init__(self, bg_img: Image.Image, group_box,
                  rotate_angle_range,
-                 text_provider: TextProvider = None,
                  text_img_provider=None):
         self.bg_img = bg_img
         self.group_box = group_box
@@ -103,7 +95,6 @@ class BlockGroup:
         self.bg_height = self.bg_img.height
         self.rotate_angle_range = rotate_angle_range
 
-        self.text_provider = text_provider
         self.text_img_provider = text_img_provider
 
     def auto_append_block(self):
@@ -140,25 +131,11 @@ class BlockGroup:
         """
         from service import text_img_provider
 
-        if isinstance(strategy, HorizontalStrategy):
-            orientation = TYPE_ORIENTATION_VERTICAL
-        elif isinstance(strategy, VerticalStrategy):
-            orientation = TYPE_ORIENTATION_HORIZONTAL
-        elif isinstance(strategy, HorizontalFlowStrategy):
-            orientation = TYPE_ORIENTATION_HORIZONTAL
-        elif isinstance(strategy, VerticalFlowStrategy):
-            orientation = TYPE_ORIENTATION_VERTICAL
-        elif isinstance(strategy, CustomizationStrategy1):
-            if self.block_list:
-                orientation = TYPE_ORIENTATION_HORIZONTAL
-            else:
-                orientation = TYPE_ORIENTATION_VERTICAL
-        else:
-            orientation = Random.random_choice_list(
-                [TYPE_ORIENTATION_VERTICAL, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_HORIZONTAL])
-
-        text_img = text_img_provider.auto_gen_next_text_img(width=self.width, height=self.height,
-                                                            orientation=orientation, bg_img=self.bg_img)
+        text_img = text_img_provider.auto_gen_next_img(width=self.width,
+                                                       height=self.height,
+                                                       strategy=strategy,
+                                                       bg_img=self.bg_img,
+                                                       block_list=self.block_list)
         if text_img:
             # 文本贴图旋转角度
             rotate_angle = Random.random_int(self.rotate_angle_range[0], self.rotate_angle_range[1])
@@ -212,17 +189,15 @@ class Layout:
                  out_put_dir: str,
                  rotate_angle_range,
                  group_box_list: list = [],
-                 text_provider: TextProvider = None,
-                 text_img_provider: TextImgProvider = None):
+                 text_img_provider=None):
         self.bg_img = bg_img
         self.out_put_dir = out_put_dir
         self.group_box_list = group_box_list
-        self.text_provider = text_provider
         self.text_img_provider = text_img_provider
 
         self.block_group_list = []
         for group_box in self.group_box_list:
-            block_group = BlockGroup(bg_img, group_box, rotate_angle_range, self.text_provider, self.text_img_provider)
+            block_group = BlockGroup(bg_img, group_box, rotate_angle_range, self.text_img_provider)
             self.block_group_list.append(block_group)
 
     def get_all_block_list(self):
@@ -336,20 +311,18 @@ class Layout:
 
 def layout_factory(bg_img: Image.Image,
                    group_box_list: list,
-                   text_provider: TextProvider,
-                   text_img_provider: TextImgProvider,
+                   text_img_provider,
                    out_put_dir,
                    ) -> Layout:
     """
     生成layout的工厂方法
     :param bg_img:
     :param group_box_list:
-    :param text_provider:
     :param text_img_provider:
     :param out_put_dir:
     :return:
     """
-    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list, text_provider=text_provider,
+    layout = Layout(bg_img=bg_img, out_put_dir=out_put_dir, group_box_list=group_box_list,
                     text_img_provider=text_img_provider)
     return layout
 

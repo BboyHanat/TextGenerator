@@ -5,8 +5,13 @@ from service.constant import const
 from utils.decorator import singleton
 from utils.random_tools import Random
 from core.element.CharImg import CharImg
-from core.element.TextImg import create, gen_batch_char_obj, TYPE_ORIENTATION_HORIZONTAL, \
+from core.element.TextImg import create, gen_batch_char_obj, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_VERTICAL, \
     TYPE_ALIGN_MODEL_C, TYPE_ALIGN_MODEL_B, TYPE_ALIGN_MODEL_T
+from core.layout.strategy.HorizontalStrategy import HorizontalStrategy
+from core.layout.strategy.VerticalStrategy import VerticalStrategy
+from core.layout.strategy.HorizontalFlowStrategy import HorizontalFlowStrategy
+from core.layout.strategy.VerticalFlowStrategy import VerticalFlowStrategy
+from core.layout.strategy.CustomizationStrategy1 import CustomizationStrategy1
 from utils import font_tool
 import numpy as np
 import cv2
@@ -145,7 +150,7 @@ class TextImgProvider:
 
             return (r, g, b, 255)
 
-    def auto_gen_next_text_img(self, width, height, orientation, bg_img):
+    def auto_gen_next_img(self, width, height, strategy, bg_img, block_list):
         """
         自动生成下一个文本贴图
         :return:
@@ -153,6 +158,23 @@ class TextImgProvider:
         from service import text_provider
         text = "".join(text_provider.gen.__next__())
         fp = self.next_font_path()
+
+        if isinstance(strategy, HorizontalStrategy):
+            orientation = TYPE_ORIENTATION_VERTICAL
+        elif isinstance(strategy, VerticalStrategy):
+            orientation = TYPE_ORIENTATION_HORIZONTAL
+        elif isinstance(strategy, HorizontalFlowStrategy):
+            orientation = TYPE_ORIENTATION_HORIZONTAL
+        elif isinstance(strategy, VerticalFlowStrategy):
+            orientation = TYPE_ORIENTATION_VERTICAL
+        elif isinstance(strategy, CustomizationStrategy1):
+            if block_list:
+                orientation = TYPE_ORIENTATION_HORIZONTAL
+            else:
+                orientation = TYPE_ORIENTATION_VERTICAL
+        else:
+            orientation = Random.random_choice_list(
+                [TYPE_ORIENTATION_VERTICAL, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_HORIZONTAL])
 
         v = min(width, height)
         # 设置字体大小
