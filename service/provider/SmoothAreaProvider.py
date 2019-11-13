@@ -129,7 +129,6 @@ class SmoothAreaProvider(object):
             anchor_preserved[i, :] = anchor_preserved[i, :] * scale
         if anchor_preserved.shape[0] > 0:
             anchor_out = anchor_preserved[:, 0:4]
-            score = anchor_preserved[:, 4]
             anchor_out = np.asarray(anchor_out, np.int32)
             anchor_out = list(anchor_out)
             return anchor_out
