@@ -46,7 +46,7 @@ provider:
     font_file_dir: /data/User/hanat/TF_CRNN_CTC/data/fonts
     text_img_output_dir: /hanat/output/text_img
     text_img_info_output_dir: /hanat/output/text_img_info
-    font_min_size: 32
+    font_min_size: 50
     use_char_common_color_probability: 0.5
     char_common_color_list:
       - (0,0,0,255)
