@@ -9,27 +9,27 @@ provider:
       path: data/corpus/word-en.txt
       probability: 0.2
       type: line
-      len_range: (2,20)
+      len_range: (2,15)
     - name: chinese
       path: data/corpus/semtic_curpus.txt
       probability: 0.3
       type: line
-      len_range: (2,20)
+      len_range: (2,15)
     - name: random_character
       path: data/corpus/chinese_synthetic.txt
       probability: 0.2
       type: word
-      len_range: (2,20)
+      len_range: (2,15)
     - name: scene
       path: data/corpus/common.txt
       probability: 0.1
       type: line
-      len_range: (2,20)
+      len_range: (2,15)
     - name: special
       path: data/corpus/huanbei.txt
       probability: 0.2
       type: line
-      len_range: (2,20)
+      len_range: (2,15)
   smooth_area:
     down_scale: 32
     anchor_ratio: (0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6)
