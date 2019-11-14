@@ -9,31 +9,31 @@ provider:
       path: data/corpus/word-en.txt
       probability: 0.2
       type: line
-      len_range: (2,15)
+      len_range: (5,15)
     - name: chinese
       path: data/corpus/semtic_curpus.txt
       probability: 0.3
       type: line
-      len_range: (2,15)
+      len_range: (5,15)
     - name: random_character
       path: data/corpus/chinese_synthetic.txt
       probability: 0.2
       type: word
-      len_range: (2,15)
+      len_range: (5,15)
     - name: scene
       path: data/corpus/common.txt
       probability: 0.1
       type: line
-      len_range: (2,15)
+      len_range: (5,15)
     - name: special
       path: data/corpus/huanbei.txt
       probability: 0.2
       type: line
-      len_range: (2,15)
+      len_range: (5,15)
   smooth_area:
     down_scale: 32
     anchor_ratio: (0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6)
-    anchor_scale: (8, 16, 24, 32, 48, 64, 72, 90)
+    anchor_scale: (16, 24, 32, 48, 64, 72, 90)
   bg_img:
     - type: from_dir
       dir: /data/User/lijianan/data/ocr_background_img
@@ -46,11 +46,39 @@ provider:
     font_file_dir: /data/User/hanat/TF_CRNN_CTC/data/fonts
     text_img_output_dir: /hanat/output/text_img
     text_img_info_output_dir: /hanat/output/text_img_info
-    font_min_size: 20
+    font_min_size: 32
     use_char_common_color_probability: 0.5
     char_common_color_list:
       - (0,0,0,255)
-      - (255,0,0,255)
+      - (255,255,255,255)
+      - (51,51,51,255)
+      - (20,65,117,255)
+      - (216,216,216,255)
+      - (5,60,115,255)
+      - (67,69,79,255)
+      - (236,235,236,255)
+      - (0,250,203,255)
+      - (64,199,231,255)
+      - (253,204,127,255)
+      - (254,2,255,255)
+      - (195,153,120,255)
+      - (247,1,6,255)
+      - (251,79,79,255)
+      - (248,213,17,255)
+      - (218,86,38,255)
+      - (96,124,225,255)
+      - (110,216,178,255)
+      - (18,183,243,255)
+      - (250,253,255,255)
+      - (231,234,13,255)
+      - (248,77,18,255)
+      - (249,24,20,255)
+      - (242,110,81,255)
+      - (255,230,2,255)
+      - (255,99,52,255)
+      - (218,74,64,255)
+      - (155,238,254,255)
+      - (190,185,230,255)
     char_border_width: 0
     char_border_color: (255,255,0,255)
   layout:
@@ -58,16 +86,16 @@ provider:
     rotate_angle_range: (-8, 8)
     strategy_list:
       - name: HorizontalStrategy
-        probability: 0.3
+        probability: 0.0
       - name: VerticalStrategy
-        probability: 0.1
+        probability: 0.5
       - name: HorizontalFlowStrategy
-        probability: 0.3
+        probability: 0.5
       - name: VerticalFlowStrategy
-        probability: 0.1
+        probability: 0.0
       - name: RandomPasteStrategy
-        probability: 0.1
+        probability: 0.0
       - name: CustomizationStrategy1
-        probability: 0.1
+        probability: 0.0
 
 
