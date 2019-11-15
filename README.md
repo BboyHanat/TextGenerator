@@ -1,6 +1,6 @@
 # TextGenerator
 
-— this is a tools for ocr dataset, text detection, fonts classification dataset generate.
+- this is a tools for ocr dataset, text detection, fonts classification dataset generate.
 - 这是一个用来生成ocr数据，文字检测数据，字体识别的最方便的工具
 
 ## 实现的功能：
