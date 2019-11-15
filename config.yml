@@ -1,61 +1,83 @@
 base:
+  # 启动的进程数
   process_count: 2
+  # 每个进程下生成的图片个数
   count_per_process: 5
+  # 是否生成voc数据
   gen_voc: True
 
 provider:
+  # 选取语料的配置
   text:
     - name: english
-      path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/word-en.txt
+      # 语料文本的路径
+      path: assert/corpus/word-en.txt
+      # 生成文本时，选取此语料的概率
       probability: 0.3
+      # 读取语料的方式（逐行读取: line，逐字读取: word）
       type: line
+      # 生成的文本长度区间
       len_range: (2,20)
     - name: chinese
-      path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/sentence.txt
+      path: assert/corpus/sentence.txt
       probability: 0.3
       type: line
       len_range: (2,20)
     - name: random_character
-      path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/chinese_synthetic.txt
+      path: assert/corpus/chinese_synthetic.txt
       probability: 0.1
       type: word
       len_range: (2,20)
-    - name: business
-      path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/dianshang.txt
-      probability: 0.2
-      type: line
-      len_range: (2,20)
-    - name: scene
-      path: /Users/lijianan/Documents/workspace/github/TextGenerator/data/corpus/common.txt
-      probability: 0.1
-      type: line
-      len_range: (2,20)
+
+  # 候选区生成配置
   smooth_area:
     down_scale: 32
     anchor_ratio: (0.17, 0.25, 0.5, 1.0, 2.0, 4.0, 6)
     anchor_scale: (8, 16, 24, 32, 48, 64, 72, 90)
+
+  # 背景图选取配置
   bg_img:
+    # 从磁盘选取
     - type: from_dir
-      dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/img
+      # 生成图片的背景图存放路径
+      dir: assert/img
+      # 选取磁盘上的背景图作为背景图的概率
       probability: 0.8
+    # 自动生成
     - type: from_generate
+      # 选取自动生成背景图作为背景图的概率
       probability: 0.2
       width_range: (1000, 1500)
       height_range: (1000, 1500)
+
+  # 文字贴图配置
   text_img:
-    font_file_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/font
-    text_img_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img
-    text_img_info_output_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output/text_img_info
+    # 文字文件存放路径
+    font_file_dir: assert/font
+    # 文字贴图输出路径
+    text_img_output_dir: output/text_img
+    # 文字贴图json信息输出路径
+    text_img_info_output_dir: output/text_img_info
+    # 字体最小尺寸
     font_min_size: 20
+    # 使用指定颜色作为文本颜色的概率（相对于自动选取颜色）
     use_char_common_color_probability: 0.5
+    # 指定字体的可选颜色列表（生成字体贴图时会从以下颜色列表中选取颜色作为字体颜色）
     char_common_color_list:
       - (0,0,0,255)
       - (255,0,0,255)
+    # 文本框的宽度
     char_border_width: 0
+    # 文本框的颜色
     char_border_color: (255,255,0,255)
+
+  # 布局配置
   layout:
-    out_put_dir: /Users/lijianan/Documents/workspace/github/TextGenerator/data/output
+    # 输出布局文件的路径
+    out_put_dir: output
+    # 贴图旋转角度区间
     rotate_angle_range: (-8, 8)
+    # 各种布局模式以及其选取的概率
     strategy_list:
       - name: HorizontalStrategy
         probability: 0.2

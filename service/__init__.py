@@ -36,7 +36,7 @@ def load_from_config():
 def init_config():
     log.info("load config")
     global conf
-    with open(os.path.join(basedir, "config_server.yml"), 'r') as f:
+    with open(os.path.join(basedir, "config.yml"), 'r') as f:
         conf = yaml.load(f.read(), Loader=yaml.Loader)
         load_from_config()
 

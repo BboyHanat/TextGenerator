@@ -27,3 +27,27 @@
 ![](img/fragment_ca71322eec0332fb3f6bb2a213c22f4a183c69da7.jpg)
 
 ![](img/fragment_f712bd7187d446b5fd5daf0ee0c6cb33ad26f98710.jpg)
+
+### 使用方式
+
+- 环境安装(Python3.6+，建议使用conda环境)
+        
+    ```
+    # step 1
+    pip install requirements.txt
+    # step 2
+    sh make.sh
+    ```
+  
+- 编辑配置文件`config.yml`（可选）
+    
+- 执行生成脚本
+
+    ```
+    python3 run.py
+    ```
+  
+- 生成的数据
+    
+    生成的数据存放在`config.yml`中的`provider> layout> out_put_dir`指定的目录下。
+     
