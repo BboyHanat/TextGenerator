@@ -8,6 +8,7 @@ import numpy as np
 import json
 from utils import time_util as tu
 import math
+import traceback
 
 TYPE_ORIENTATION_HORIZONTAL = 0
 TYPE_ORIENTATION_VERTICAL = 1
@@ -165,11 +166,16 @@ def calc_bg_size(font_path: str,
         font = ImageFont.truetype(font_path, size=char_obj.font_size)
 
         # 获取当前字符的背景尺寸
-        char_bg_w, char_bg_h = font.getsize(char_obj.char)
-        # 加上边框尺寸
-        char_bg_w += char_obj.border_width * 2
-        char_bg_h += char_obj.border_width * 2
+        char_bg_w = 0
+        char_bg_h = 0
+        try:
+            char_bg_w, char_bg_h = font.getsize(char_obj.char)
 
+            # 加上边框尺寸
+            char_bg_w += char_obj.border_width * 2
+            char_bg_h += char_obj.border_width * 2
+        except Exception as e:
+            traceback.print_exc()
         char_obj.size = (char_bg_w, char_bg_h)
 
         # 获取当前行文本的最大字符图片的宽高
