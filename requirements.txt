@@ -4,3 +4,4 @@ ruamel.yaml
 numpy
 lxml
 fontTools
+Cython
