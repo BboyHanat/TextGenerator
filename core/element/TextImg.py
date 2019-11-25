@@ -9,6 +9,7 @@ import json
 from utils import time_util as tu
 import math
 import traceback
+from utils import log
 
 TYPE_ORIENTATION_HORIZONTAL = 0
 TYPE_ORIENTATION_VERTICAL = 1
@@ -249,6 +250,9 @@ def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], 
                 l = 0
             char_obj.box = [l, t, l + cw, t + ch]
 
+        log.info("draw text >> {text} color: {color} font: {font}".format(text=char_obj.char,
+                                                                         color=char_obj.color,
+                                                                         font=font))
         draw.text((l + char_obj.border_width, t + char_obj.border_width),
                   text=char_obj.char,
                   fill=char_obj.color,
