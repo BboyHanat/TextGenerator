@@ -44,6 +44,7 @@ class RandomCorpusGen(object):
             elif (len(random_str) + length+1) < self._len_range[0]:
                 char_str += " " + random_str
             else:
+                char_str += " " + random_str
                 char_str = self._random_crop(char_str)
                 break
         return char_str
