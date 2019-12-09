@@ -30,7 +30,7 @@ class RandomCorpusGen(object):
             yield self._character_seq[seek]
 
     def _random_crop(self, char_str):
-        seek = Random.random_int(0, self._len_range[1]-len(char_str)-1)
+        seek = Random.random_int(0, len(char_str) - self._len_range[1] - 1)
         char_str = char_str[seek: seek+self._len_range[1]]
         return char_str
 
@@ -38,7 +38,7 @@ class RandomCorpusGen(object):
         length = len(char_str)
         while True:
             random_str = self._get_random().__next__()
-            if self._len_range[0]<(len(random_str) + length+1)<self._len_range[1]:
+            if self._len_range[0] < (len(random_str) + length+1) < self._len_range[1]:
                 char_str += " "+random_str
                 break
             elif (len(random_str) + length+1) < self._len_range[0]:
