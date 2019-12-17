@@ -38,10 +38,10 @@ class RandomCorpusGen(object):
         while True:
             length = len(char_str)
             random_str = self._get_random().__next__()
-            if self._len_range[0] <= (len(random_str) + length+1) <= self._len_range[1]:
+            if self._len_range[0] <= (len(random_str) + length) <= self._len_range[1]:
                 char_str += random_str
                 break
-            elif (len(random_str) + length+1) < self._len_range[0]:
+            elif (len(random_str) + length) < self._len_range[0]:
                 char_str += random_str
             else:
                 char_str += random_str
