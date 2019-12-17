@@ -35,16 +35,16 @@ class RandomCorpusGen(object):
         return char_str
 
     def _random_add(self, char_str):
-        length = len(char_str)
         while True:
+            length = len(char_str)
             random_str = self._get_random().__next__()
             if self._len_range[0] <= (len(random_str) + length+1) <= self._len_range[1]:
-                char_str += " "+random_str
+                char_str += random_str
                 break
             elif (len(random_str) + length+1) < self._len_range[0]:
-                char_str += " " + random_str
+                char_str += random_str
             else:
-                char_str += " " + random_str
+                char_str += random_str
                 char_str = self._random_crop(char_str)
                 break
         return char_str
@@ -57,7 +57,7 @@ class RandomCorpusGen(object):
             char_str = self._character_seq[seek]
             if len(char_str) > self._len_range[1]:
                 char_str = self._random_crop(char_str)
-            elif len(char_str) < self._len_range[1]:
+            elif len(char_str) < self._len_range[0]:
                 char_str = self._random_add(char_str)
             yield char_str
             seek += 1
