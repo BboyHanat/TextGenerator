@@ -70,6 +70,8 @@ provider:
     char_border_width: 0
     # 文本框的颜色
     char_border_color: (255,255,0,255)
+    # 自动padding到指定的 长边/短边 的比例
+    auto_padding_to_ratio: 10
 
   # 布局配置
   layout:

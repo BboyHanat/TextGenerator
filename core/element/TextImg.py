@@ -147,13 +147,17 @@ def load_img(img_path):
 def calc_bg_size(font_path: str,
                  orientation: int,
                  char_obj_list: List[CharImg],
-                 spacing_rate: float) -> tuple:
+                 spacing_rate: float,
+                 padding,
+                 auto_padding_to_ratio) -> tuple:
     """
     计算背景尺寸
     :param font_path: 字体路径
     :param orientation: 朝向
     :param char_obj_list: 字符对象
     :param spacing_rate: 间距 (相对于文字大小的占比)
+    :param padding: 内边距
+    :param auto_padding_to_ratio: 自动 padding 到指定的比例(水平排布是 w/h 竖直排布是 h/w)
     :return:
     """
 
@@ -195,10 +199,40 @@ def calc_bg_size(font_path: str,
             bg_w += math.ceil(char_obj.size[0] * (1 + r))
             bg_h = max_char_bg_h
 
-    return bg_w, bg_h
+    if auto_padding_to_ratio > 0:
+        # 自动 padding 到指定尺寸
+
+        # 如果是水平排列 则在左右两边加padding
+        # auto_padding_to_ratio = tw / th
+        if orientation == TYPE_ORIENTATION_HORIZONTAL:
+            st_w = auto_padding_to_ratio * bg_h
+            if st_w > bg_w:
+                d = round((st_w - bg_w) / 2)
+                padding = (d, 0, d, 0)
+            else:
+                st_h = bg_w / auto_padding_to_ratio
+                d = round((st_h - bg_h) / 2)
+                padding = (0, d, 0, d)
+
+        # 如果是竖直排列 则在上下两边加padding
+        # auto_padding_to_ratio = th / tw
+        elif orientation == TYPE_ORIENTATION_VERTICAL:
+            st_h = auto_padding_to_ratio * bg_w
+            if st_h > bg_h:
+                d = round((st_h - bg_h) / 2)
+                padding = (0, d, 0, d)
+            else:
+                st_w = bg_h / auto_padding_to_ratio
+                d = round((st_w - bg_w) / 2)
+                padding = (d, 0, d, 0)
+
+    bg_w = bg_w + padding[0] + padding[2]
+    bg_h = bg_h + padding[1] + padding[3]
+
+    return bg_w, bg_h, padding
 
 
-def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], spacing_rate, align_mode):
+def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], spacing_rate, align_mode, padding):
     """
     在文字贴图背景上绘制文字
     :param font_path:
@@ -208,10 +242,14 @@ def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], 
     :param char_obj_list:
     :param spacing_rate:
     :param align_mode:
+    :param padding:
     :return:
     """
     img = Image.new("RGBA", (bg_w, bg_h), color=(0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
+
+    font_area_w = bg_w - padding[0] - padding[2]
+    font_area_h = bg_h - padding[1] - padding[3]
 
     tmp_char = None
     l, t = 0, 0
@@ -224,22 +262,27 @@ def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], 
             if align_mode == TYPE_ALIGN_MODEL_B:
                 l = 0
             elif align_mode == TYPE_ALIGN_MODEL_C:
-                l = math.ceil((bg_w - cw) / 2)
+                l = math.ceil((font_area_w - cw) / 2)
             elif align_mode == TYPE_ALIGN_MODEL_T:
-                l = bg_w - cw
+                l = font_area_w - cw
 
             if tmp_char:
                 add_t = math.ceil(tmp_char.size[1] * (1 + spacing_rate))
                 t += add_t
             else:
                 t = 0
+
+            l += padding[0]
+            if index == 0:
+                t += padding[1]
             char_obj.box = [l, t, l + cw, t + ch]
 
         else:
+            t = 0
             if align_mode == TYPE_ALIGN_MODEL_B:
-                t = bg_h - ch
+                t = font_area_h - ch
             elif align_mode == TYPE_ALIGN_MODEL_C:
-                t = math.ceil((bg_h - ch) / 2)
+                t = math.ceil((font_area_h - ch) / 2)
             elif align_mode == TYPE_ALIGN_MODEL_T:
                 t = 0
 
@@ -248,11 +291,15 @@ def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], 
                 l += add_l
             else:
                 l = 0
+
+            t += padding[1]
+            if index == 0:
+                l += padding[0]
             char_obj.box = [l, t, l + cw, t + ch]
 
         log.info("draw text >> {text} color: {color} font: {font}".format(text=char_obj.char,
-                                                                         color=char_obj.color,
-                                                                         font=font))
+                                                                          color=char_obj.color,
+                                                                          font=font))
         draw.text((l + char_obj.border_width, t + char_obj.border_width),
                   text=char_obj.char,
                   fill=char_obj.color,
@@ -288,6 +335,8 @@ def create(char_obj_list: List[CharImg],
            orientation: int = TYPE_ORIENTATION_HORIZONTAL,
            align_mode: int = TYPE_ALIGN_MODEL_B,
            spacing_rate: float = 0.08,
+           padding=(0, 0, 0, 0),
+           auto_padding_to_ratio=0,
            font_path="",
            text_img_output_dir="",
            text_img_info_output_dir=""
@@ -298,16 +347,19 @@ def create(char_obj_list: List[CharImg],
     :param orientation: 生成的方向
     :param align_mode: 文本对齐模式
     :param spacing_rate: 间距 (相对于文字大小的占比)
+    :param padding: 内边距
+    :param auto_padding_to_ratio: 自动padding到指定的比例 <=0 代表不自动padding (水平排布是 w/h 竖直排布是 h/w)
     :param font_path: 字体文件路径
     :param text_img_output_dir:
     :param text_img_info_output_dir:
     :return:
     """
     # 生成文本贴图的透明背景区域
-    bg_w, bg_h = calc_bg_size(font_path, orientation, char_obj_list, spacing_rate)
+    bg_w, bg_h, padding = calc_bg_size(font_path, orientation, char_obj_list, spacing_rate, padding,
+                                       auto_padding_to_ratio)
 
     # 绘制文字
-    img = draw_text(font_path, bg_w, bg_h, orientation, char_obj_list, spacing_rate, align_mode)
+    img = draw_text(font_path, bg_w, bg_h, orientation, char_obj_list, spacing_rate, align_mode, padding)
 
     return TextImg(char_obj_list=char_obj_list,
                    text_img_output_dir=text_img_output_dir,
