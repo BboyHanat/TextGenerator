@@ -29,12 +29,37 @@ class RandomCorpusGen(object):
             seek = Random.random_int(0, self._corpus_length - 1)
             yield self._character_seq[seek]
 
+    def _random_crop(self, char_str):
+        seek = Random.random_int(0, len(char_str) - self._len_range[1])
+        char_str = char_str[seek: seek+self._len_range[1]]
+        return char_str
+
+    def _random_add(self, char_str):
+        while True:
+            length = len(char_str)
+            random_str = self._get_random().__next__()
+            if self._len_range[0] <= (len(random_str) + length) <= self._len_range[1]:
+                char_str += random_str
+                break
+            elif (len(random_str) + length) < self._len_range[0]:
+                char_str += random_str
+            else:
+                char_str += random_str
+                char_str = self._random_crop(char_str)
+                break
+        return char_str
+
     def _get_next_batch(self):
         seek = 0
         while True:
             if seek == self._corpus_length:
                 seek = 0
-            yield self._character_seq[seek]
+            char_str = self._character_seq[seek]
+            if len(char_str) > self._len_range[1]:
+                char_str = self._random_crop(char_str)
+            elif len(char_str) < self._len_range[0]:
+                char_str = self._random_add(char_str)
+            yield char_str
             seek += 1
 
 

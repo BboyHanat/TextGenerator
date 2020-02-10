@@ -11,7 +11,7 @@ provider:
   text:
     - name: english
       # 语料文本的路径
-      path: assert/corpus/word-en.txt
+      path: assets/corpus/word-en.txt
       # 生成文本时，选取此语料的概率
       probability: 0.3
       # 读取语料的方式（逐行读取: line，逐字读取: word）
@@ -19,12 +19,12 @@ provider:
       # 生成的文本长度区间
       len_range: (2,20)
     - name: chinese
-      path: assert/corpus/sentence.txt
+      path: assets/corpus/sentence.txt
       probability: 0.3
       type: line
       len_range: (2,20)
     - name: random_character
-      path: assert/corpus/chinese_synthetic.txt
+      path: assets/corpus/chinese_synthetic.txt
       probability: 0.1
       type: word
       len_range: (2,20)
@@ -40,7 +40,7 @@ provider:
     # 从磁盘选取
     - type: from_dir
       # 生成图片的背景图存放路径
-      dir: assert/img
+      dir: assets/img
       # 选取磁盘上的背景图作为背景图的概率
       probability: 0.8
     # 自动生成
@@ -53,7 +53,7 @@ provider:
   # 文字贴图配置
   text_img:
     # 文字文件存放路径
-    font_file_dir: assert/font
+    font_file_dir: assets/font
     # 文字贴图输出路径
     text_img_output_dir: output/text_img
     # 文字贴图json信息输出路径
