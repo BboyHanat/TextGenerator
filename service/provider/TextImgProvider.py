@@ -36,7 +36,7 @@ def list_font_path(font_file_dir):
 @singleton
 class TextImgProvider(NextBlockGenerator):
 
-    def __init__(self, font_file_dir, text_img_output_dir, text_img_info_output_dir, font_min_size,
+    def __init__(self, font_file_dir, text_img_output_dir, text_img_info_output_dir, font_min_size, font_max_size,
                  use_char_common_color_probability,
                  char_common_color_list,
                  char_border_width, char_border_color,
@@ -64,6 +64,7 @@ class TextImgProvider(NextBlockGenerator):
         self.text_img_output_dir = text_img_output_dir
         self.text_img_info_output_dir = text_img_info_output_dir
         self.font_min_size = font_min_size
+        self.font_max_size = font_max_size
         self.use_char_common_color_probability = use_char_common_color_probability
         self.char_common_color_list = char_common_color_list
         self.char_border_width = char_border_width
@@ -177,11 +178,13 @@ class TextImgProvider(NextBlockGenerator):
             orientation = Random.random_choice_list(
                 [TYPE_ORIENTATION_VERTICAL, TYPE_ORIENTATION_HORIZONTAL, TYPE_ORIENTATION_HORIZONTAL])
 
-        v = min(width, height)
         # 设置字体大小
-
-        font_size = Random.random_int(v // 20, v // 10)
-        font_size = self.font_min_size if font_size < self.font_min_size else font_size
+        if self.font_max_size != 'vaild':
+            font_size = Random.random_int(self.font_min_size, self.font_max_size)
+        else:
+            v = min(width, height)
+            font_size = Random.random_int(v // 20, v // 10)
+            font_size = self.font_min_size if font_size < self.font_min_size else font_size
 
         # 剔除不存在的文字
         text = "".join(filter(lambda c: font_tool.check(c, font_path=fp), text))

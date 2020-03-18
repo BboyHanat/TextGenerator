@@ -253,6 +253,8 @@ def draw_text(font_path, bg_w, bg_h, orientation, char_obj_list: List[CharImg], 
         log.info("draw text >> {text} color: {color} font: {font}".format(text=char_obj.char,
                                                                          color=char_obj.color,
                                                                          font=font))
+
+        # draw text
         draw.text((l + char_obj.border_width, t + char_obj.border_width),
                   text=char_obj.char,
                   fill=char_obj.color,
