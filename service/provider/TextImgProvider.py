@@ -39,7 +39,9 @@ class TextImgProvider(NextBlockGenerator):
     def __init__(self, font_file_dir, text_img_output_dir, text_img_info_output_dir, font_min_size, font_max_size,
                  use_char_common_color_probability,
                  char_common_color_list,
-                 char_border_width, char_border_color,
+                 char_border_width,
+                 char_border_color,
+                 auto_padding_to_ratio=0.0,
                  seed=time.time()):
         """
         初始化文本图片生成器
@@ -51,6 +53,7 @@ class TextImgProvider(NextBlockGenerator):
         :param char_common_color_list
         :param char_border_width: 字符边框的宽度
         :param char_border_color: 字符边框的颜色
+        :param auto_padding_to_ratio: 自动padding到指定的比例 <=0 代表不自动padding (水平排布是 w/h 竖直排布是 h/w)
         :param seed:
         """
         os.makedirs(text_img_output_dir, exist_ok=True)
@@ -68,7 +71,8 @@ class TextImgProvider(NextBlockGenerator):
         self.use_char_common_color_probability = use_char_common_color_probability
         self.char_common_color_list = char_common_color_list
         self.char_border_width = char_border_width
-        self.char_border_color = char_border_color
+        self.char_border_color = eval(char_border_color) if type(char_border_color) is str else char_border_color
+        self.auto_padding_to_ratio = auto_padding_to_ratio
 
         Random.shuffle(self.font_file_list, seed)
 
@@ -90,13 +94,17 @@ class TextImgProvider(NextBlockGenerator):
                      border_width=0,
                      border_color=const.COLOR_TRANSPARENT,
                      orientation=TYPE_ORIENTATION_HORIZONTAL,
-                     align_mode=TYPE_ALIGN_MODEL_C):
+                     padding=(0, 0, 0, 0),
+                     align_mode=TYPE_ALIGN_MODEL_C,
+                     auto_padding_to_ratio=0.0):
         char_obj_list = gen_batch_char_obj(text=text, color=color, font_size=font_size, border_width=border_width,
                                            border_color=border_color)
 
         text_img = create(char_obj_list=char_obj_list,
                           orientation=orientation,
                           align_mode=align_mode,
+                          padding=padding,
+                          auto_padding_to_ratio=auto_padding_to_ratio,
                           font_path=font_path,
                           text_img_output_dir=self.text_img_output_dir,
                           text_img_info_output_dir=self.text_img_info_output_dir)
@@ -199,7 +207,8 @@ class TextImgProvider(NextBlockGenerator):
                                          color=self.get_fontcolor(bg_img),
                                          orientation=orientation,
                                          align_mode=align,
-                                         font_path=fp)
+                                         font_path=fp,
+                                         auto_padding_to_ratio=self.auto_padding_to_ratio)
             return text_img
 
     def auto_gen_next_img_block(self, width, height, strategy, bg_img, block_list, rotate_angle):
