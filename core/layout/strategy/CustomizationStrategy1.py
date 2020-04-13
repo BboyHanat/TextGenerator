@@ -5,8 +5,9 @@ from core.layout.strategy import is_horizontal, is_vertical
 class CustomizationStrategy1(Strategy):
     """
     定制策略1：
-
-    左边一个竖直排列 右边一列水平排列
+    「*|  [********]
+     |*」 [********]
+    左边一列竖直排列 右边一列水平排列
     """
 
     def logic(self, block_group, next_block) -> bool:

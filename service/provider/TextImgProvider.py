@@ -239,7 +239,7 @@ if __name__ == '__main__':
     # 构造文本图片
     l = []
     l.extend(gen_batch_char_obj("你好啊", const.COLOR_BLUE, font_size=24))
-    l.extend(gen_batch_char_obj("李佳楠", const.COLOR_GREEN, font_size=28))
+    l.extend(gen_batch_char_obj(" 渣 男 ", const.COLOR_GREEN, font_size=28))
     r = text_img_provider.gen_complex_text_img(l, font_path=fp)
     r.show()
 

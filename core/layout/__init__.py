@@ -9,6 +9,8 @@ from core.element.TextImg import TYPE_ORIENTATION_HORIZONTAL, \
 import os
 import hashlib
 import json
+import cv2
+import numpy as np
 
 
 class Block:
@@ -17,6 +19,7 @@ class Block:
         self.outer_box = ()
         self.img = img
         self.img = self.img.rotate(angle=rotate_angle, expand=True)
+        self.img_rotate_box = self.get_rotate_box()
 
         self.margin = margin
 
@@ -41,6 +44,8 @@ class Block:
 
     def locate_by_inner(self, inner_x, inner_y):
         self.inner_box = (inner_x, inner_y, inner_x + self.img.width, inner_y + self.img.height)
+        self.img_rotate_box[:, 0] += inner_x
+        self.img_rotate_box[:, 1] += inner_y
         self.outer_box = (inner_x - self.margin,
                           inner_y - self.margin,
                           inner_x + self.img.width + self.margin,
@@ -60,6 +65,18 @@ class Block:
 
     def crop_self(self, bg_img: Image.Image):
         return bg_img.crop(self.inner_box)
+
+    def get_rotate_box(self):
+        alpha = self.get_alpha_mask()
+        alpha = np.asarray(alpha, np.uint8)
+        points = np.argwhere(alpha > 0)
+        points = points[:, ::-1]
+        rotate_rect = cv2.minAreaRect(points)
+        rotate_rect_point = cv2.boxPoints(rotate_rect)
+        rotate_rect_point = rotate_rect_point.astype(np.int32)
+        return rotate_rect_point
+
+
 
 
 class TextBlock(Block):
@@ -245,11 +262,13 @@ class Layout:
         for block in self.get_all_block_list():
             fragment_img = block.crop_self(self.bg_img)
             fragment_box = block.inner_box
+            fragment_rotate_box = block.img_rotate_box.tolist()
             fragment_data = block.get_data()
             orientation = block.get_orientation()
             item = {
                 "img": fragment_img,
                 "box": fragment_box,
+                "rotate_box": fragment_rotate_box,
                 "data": fragment_data,
                 "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
                 "type": str(block.__class__.__name__)

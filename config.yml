@@ -6,6 +6,8 @@ base:
   # 是否生成voc数据
   gen_voc: True
 
+  gen_lsvt: True
+
 provider:
   # 选取语料的配置
   text:
@@ -59,9 +61,9 @@ provider:
     # 文字贴图json信息输出路径
     text_img_info_output_dir: output/text_img_info
     # 字体最小尺寸
-    font_min_size: 10
+    font_min_size: 15
     # 字体最大尺寸
-    font_max_size: 15
+    font_max_size: 50
     # 使用指定颜色作为文本颜色的概率（相对于自动选取颜色）
     use_char_common_color_probability: 0.5
     # 指定字体的可选颜色列表（生成字体贴图时会从以下颜色列表中选取颜色作为字体颜色）

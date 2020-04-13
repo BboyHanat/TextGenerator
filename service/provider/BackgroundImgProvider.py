@@ -1,7 +1,6 @@
 """
 Name : BackgroundImgProvider.py
 Author  : Hanat
-Contect : hanati@tezign.com
 Time    : 2019-09-19 16:50
 Desc:
 """

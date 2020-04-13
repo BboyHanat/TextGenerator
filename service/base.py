@@ -1,6 +1,7 @@
 from lxml.etree import Element, SubElement, tostring
 from utils import log
 import shutil
+import json
 import os
 
 
@@ -31,6 +32,11 @@ def get_voc_data_dir(out_put_dir):
     return voc_data
 
 
+def get_lsvt_data_dir(out_put_dir):
+    lsvt_data = os.path.join(out_put_dir, "lsvt_data")
+    return lsvt_data
+
+
 def gen_all_pic():
     """
     生成全部图片
@@ -50,6 +56,10 @@ def gen_all_pic():
             # 生成voc
             if conf['base']['gen_voc']:
                 gen_voc(dump_data)
+                index += 1
+
+            if conf['base']['gen_lsvt']:
+                gen_lsvt(dump_data)
                 index += 1
 
 
@@ -178,3 +188,53 @@ def _gen_voc(save_dir, data, image_format='jpg'):
     save_xml = os.path.join(save_dir, data['pic_name'].replace(image_format, 'xml'))
     with open(save_xml, 'wb') as f:
         f.write(xml)
+
+
+def gen_lsvt(layout_data):
+    """
+    生成voc数据集
+    :return:
+    """
+    from service import conf
+    out_put_dir = conf['provider']['layout']['out_put_dir']
+    lsvt_data_dir = get_lsvt_data_dir(out_put_dir=out_put_dir)
+
+    lsvt_data_img_dir = os.path.join(lsvt_data_dir, "train")
+    os.makedirs(lsvt_data_img_dir, exist_ok=True)
+    lsvt_json_path = os.path.join(lsvt_data_dir, "train_full_labels_{pid}.json".format(pid=os.getpid()))
+
+    pic_dir = get_pic_dir(out_put_dir)
+    pic_name = layout_data['pic_name']
+    pic_path = os.path.join(pic_dir, pic_name)
+    pic_save_to_path = os.path.join(lsvt_data_img_dir, pic_name)
+
+    # 拷贝图片
+    shutil.copy(pic_path, pic_save_to_path)
+    log.info("copy img success")
+
+    # 生成标签文本
+    _gen_lsvt(layout_data, lsvt_json_path)
+
+    log.info("voc data gen success")
+
+
+def _gen_lsvt(layout_data, lsvt_json_path):
+    pic_name = layout_data['pic_name']
+    pic_name = pic_name.split('.')[0]
+    fragment_list = layout_data['fragment']
+    with open(lsvt_json_path, 'w+') as f:
+        if f.read() == '':
+            load_dict = dict()
+        else:
+            f.seek(0)
+            load_dict = json.load(f)
+        lsvt_dict_list = list()
+        for fragment in fragment_list:
+            txt = fragment['data']
+            rotate_box = fragment['rotate_box']
+            lsvt_info = dict(transcription=txt, points=rotate_box, illegibility=False)
+            lsvt_dict_list.append(lsvt_info)
+        load_dict.update({pic_name: lsvt_dict_list})
+        f.seek(0)
+        json.dump(load_dict, f)
+

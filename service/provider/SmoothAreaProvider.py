@@ -1,7 +1,6 @@
 """
 Name : test.py
 Author  : Hanat
-Contect : hanati@tezign.com
 Time    : 2019-10-16 15:33
 Desc:
 """
