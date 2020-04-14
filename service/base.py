@@ -192,7 +192,8 @@ def _gen_voc(save_dir, data, image_format='jpg'):
 
 def gen_lsvt(layout_data):
     """
-    生成voc数据集
+
+    :param layout_data:
     :return:
     """
     from service import conf
@@ -207,27 +208,36 @@ def gen_lsvt(layout_data):
     pic_name = layout_data['pic_name']
     pic_path = os.path.join(pic_dir, pic_name)
     pic_save_to_path = os.path.join(lsvt_data_img_dir, pic_name)
-
     # 拷贝图片
     shutil.copy(pic_path, pic_save_to_path)
     log.info("copy img success")
-
     # 生成标签文本
     _gen_lsvt(layout_data, lsvt_json_path)
-
     log.info("voc data gen success")
 
 
 def _gen_lsvt(layout_data, lsvt_json_path):
+    """
+
+    :param layout_data:
+    :param lsvt_json_path:
+    :return:
+    """
     pic_name = layout_data['pic_name']
     pic_name = pic_name.split('.')[0]
     fragment_list = layout_data['fragment']
-    with open(lsvt_json_path, 'w+') as f:
-        if f.read() == '':
+    print(lsvt_json_path)
+    if not os.path.exists(lsvt_json_path):
+        fp = open(lsvt_json_path, "w")
+        fp.close()
+    with open(lsvt_json_path, 'r') as f:
+        text = f.read()
+        if text == '':
             load_dict = dict()
         else:
-            f.seek(0)
-            load_dict = json.load(f)
+            load_dict = json.loads(text)
+
+    with open(lsvt_json_path, 'w') as f:
         lsvt_dict_list = list()
         for fragment in fragment_list:
             txt = fragment['data']
@@ -235,6 +245,7 @@ def _gen_lsvt(layout_data, lsvt_json_path):
             lsvt_info = dict(transcription=txt, points=rotate_box, illegibility=False)
             lsvt_dict_list.append(lsvt_info)
         load_dict.update({pic_name: lsvt_dict_list})
-        f.seek(0)
+        # f.seek(0)
+
         json.dump(load_dict, f)
 
