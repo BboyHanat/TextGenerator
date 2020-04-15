@@ -11,6 +11,7 @@ import hashlib
 import json
 import cv2
 import numpy as np
+from copy import deepcopy
 
 
 class Block:
@@ -20,6 +21,7 @@ class Block:
         self.img = img
         self.img = self.img.rotate(angle=rotate_angle, expand=True)
         self.img_rotate_box = self.get_rotate_box()
+        self.img_rotate_box_init = deepcopy(self.img_rotate_box)
 
         self.margin = margin
 
@@ -54,6 +56,7 @@ class Block:
     def locate_by_outter(self, outer_x, outer_y):
         inner_x = outer_x + self.margin
         inner_y = outer_y + self.margin
+        self.img_rotate_box = deepcopy(self.img_rotate_box_init)
         self.locate_by_inner(inner_x, inner_y)
 
     def get_img(self) -> Image.Image:
@@ -77,12 +80,10 @@ class Block:
         return rotate_rect_point
 
 
-
-
 class TextBlock(Block):
     def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0):
-        self.img = text_img.img
-        super().__init__(self.img, inner_x, inner_y, margin=margin, rotate_angle=rotate_angle)
+        # self.img = text_img.img
+        super().__init__(text_img.img, inner_x, inner_y, margin=margin, rotate_angle=rotate_angle)
         # todo:字符边框坐标位置的重新计算
         # for char_obj in text_img.char_obj_list:
         #     char_obj.box = # 更新为矩阵旋转变换后的位置
@@ -198,6 +199,11 @@ class BlockGroup:
             if draw_rect:
                 draw.rectangle(xy=block.outer_box, width=1, outline=const.COLOR_RED)
                 draw.rectangle(xy=block.inner_box, width=1, outline=const.COLOR_GREEN)
+                rotate_rect = block.img_rotate_box.tolist()
+                rotate_rect_tuple = list()
+                for rect in rotate_rect:
+                    rotate_rect_tuple.append((rect[0], rect[1]))
+                draw.polygon(xy=rotate_rect_tuple, fill=0, outline=(0, 0, 255))
 
         if draw_rect:
             draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT,

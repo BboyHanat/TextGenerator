@@ -4,6 +4,8 @@ from core.layout.strategy import Strategy
 class HorizontalFlowStrategy(Strategy):
     """
     生成一个水平流式排布的文本贴图布局
+    [*******]  [************]   [***]
+    [*********]
     """
 
     def logic(self, block_group, next_block) -> bool:
