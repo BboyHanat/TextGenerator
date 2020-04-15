@@ -28,6 +28,8 @@
 
 ![](img/fragment_f712bd7187d446b5fd5daf0ee0c6cb33ad26f98710.jpg)
 
+![](img/rotate_rect.png)
+
 ### 使用方式
 
 - 环境安装(Python3.6+，建议使用conda环境)

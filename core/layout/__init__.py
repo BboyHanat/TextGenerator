@@ -203,7 +203,7 @@ class BlockGroup:
                 rotate_rect_tuple = list()
                 for rect in rotate_rect:
                     rotate_rect_tuple.append((rect[0], rect[1]))
-                draw.polygon(xy=rotate_rect_tuple, fill=0, outline=(0, 0, 255))
+                draw.polygon(xy=rotate_rect_tuple, fill=0, outline=(100, 32, 178))
 
         if draw_rect:
             draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT,
