@@ -105,7 +105,7 @@ def test_gen_group_box(bg_img):
     while True:
         box = gen_one_box()
         if box:
-            need_stop = len(group_box_list) >= 5
+            need_stop = len(group_box_list) >= 10
             for gb in group_box_list:
                 if check_two_box_is_overlap(gb, box):
                     need_stop = True
