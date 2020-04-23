@@ -18,7 +18,7 @@ class RandomCorpusGen(object):
         :param batch_size:
         """
         self._character_seq = character_seq
-        # random.shuffle(self.character_seq)
+        random.shuffle(self._character_seq)
         self._len_range = len_range
         self.get_next = self._get_next_batch()
         self._corpus_length = len(self._character_seq)
@@ -52,6 +52,7 @@ class RandomCorpusGen(object):
         seek = 0
         while True:
             if seek == self._corpus_length:
+                random.shuffle(self._character_seq)
                 seek = 0
             char_str = self._character_seq[seek]
             if len(char_str) > self._len_range[1]:
