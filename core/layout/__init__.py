@@ -10,6 +10,7 @@ import os
 import hashlib
 import json
 import cv2
+import math
 import numpy as np
 from copy import deepcopy
 
@@ -19,7 +20,11 @@ class Block:
         self.inner_box = ()
         self.outer_box = ()
         self.img = img
+        self.size_src = self.img.size
         self.img = self.img.rotate(angle=rotate_angle, expand=True)
+        self.size_rotate = self.img.size
+        self.shift_x = (self.size_rotate[0] - self.size_src[0]) // 2
+        self.shift_y = (self.size_rotate[1] - self.size_src[1]) // 2
         self.img_rotate_box = self.get_rotate_box()
         self.img_rotate_box_init = deepcopy(self.img_rotate_box)
 
@@ -82,13 +87,36 @@ class Block:
 
 class TextBlock(Block):
     def __init__(self, text_img: TextImg, inner_x=0, inner_y=0, margin=0, rotate_angle=0):
-        # self.img = text_img.img
         super().__init__(text_img.img, inner_x, inner_y, margin=margin, rotate_angle=rotate_angle)
-        # todo:字符边框坐标位置的重新计算
-        # for char_obj in text_img.char_obj_list:
-        #     char_obj.box = # 更新为矩阵旋转变换后的位置
-
+        self.rotate_angle = rotate_angle
         self.text_img = text_img
+        self.char_boxes = self.char_box_rotate()  # 更新为矩阵旋转变换后的位置
+
+    def char_box_rotate(self):
+        char_boxes = list()
+        angle = self.rotate_angle / 180 * math.pi
+        rotate_center_x = (self.size_src[0]) // 2
+        rotate_center_y = (self.size_src[1]) // 2
+
+        for char_obj in self.text_img.char_obj_list:
+            box = [[char_obj.box[0], char_obj.box[1]],
+                   [char_obj.box[2], char_obj.box[1]],
+                   [char_obj.box[2], char_obj.box[3]],
+                   [char_obj.box[0], char_obj.box[3]]]
+
+            for index, coord in enumerate(box):
+                box[index][0] = (coord[0] - rotate_center_x) * math.cos(angle) + (coord[1] - rotate_center_y) * math.sin(angle) + rotate_center_x + self.shift_x
+                box[index][1] = -(coord[0] - rotate_center_x) * math.sin(angle) + (coord[1] - rotate_center_y) * math.cos(angle) + rotate_center_y + self.shift_y
+            char_boxes.append(box)
+
+        return char_boxes
+
+    def get_char_boxes(self) -> list:
+        box = np.array(self.char_boxes, np.int32)
+        box[:, :, 0] = box[:, :, 0] + self.inner_box[0]
+        box[:, :, 1] = box[:, :, 1] + self.inner_box[1]
+        box = box.tolist()
+        return box
 
     def get_img(self) -> Image.Image:
         return super().get_img()
@@ -201,9 +229,17 @@ class BlockGroup:
                 draw.rectangle(xy=block.inner_box, width=1, outline=const.COLOR_GREEN)
                 rotate_rect = block.img_rotate_box.tolist()
                 rotate_rect_tuple = list()
-                for rect in rotate_rect:
-                    rotate_rect_tuple.append((rect[0], rect[1]))
-                draw.polygon(xy=rotate_rect_tuple, fill=0, outline=(100, 32, 178))
+                for point in rotate_rect:
+                    rotate_rect_tuple.append((point[0], point[1]))
+                draw.polygon(xy=rotate_rect_tuple, fill=1, outline=(0, 32, 178))
+                if isinstance(block, TextBlock):
+                    char_boxes = block.get_char_boxes()
+                    for box in char_boxes:
+                        rotate_rect_tuple = list()
+                        for point in box:
+                            rotate_rect_tuple.append((point[0], point[1]))
+                        draw.polygon(xy=rotate_rect_tuple, fill=0, outline=(255, 0, 153))
+
 
         if draw_rect:
             draw.rectangle(xy=self.group_box, width=0, outline=const.COLOR_TRANSPARENT,
@@ -270,15 +306,28 @@ class Layout:
             fragment_box = block.inner_box
             fragment_rotate_box = block.img_rotate_box.tolist()
             fragment_data = block.get_data()
-            orientation = block.get_orientation()
-            item = {
-                "img": fragment_img,
-                "box": fragment_box,
-                "rotate_box": fragment_rotate_box,
-                "data": fragment_data,
-                "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
-                "type": str(block.__class__.__name__)
-            }
+            if isinstance(block, TextBlock):
+                char_boxes = block.get_char_boxes()
+                orientation = block.get_orientation()
+                item = {
+                    "img": fragment_img,
+                    "box": fragment_box,
+                    "rotate_box": fragment_rotate_box,
+                    "char_boxes": char_boxes,
+                    "data": fragment_data,
+                    "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
+                    "type": str(block.__class__.__name__)
+                }
+            else:
+                orientation = block.get_orientation()
+                item = {
+                    "img": fragment_img,
+                    "box": fragment_box,
+                    "rotate_box": fragment_rotate_box,
+                    "data": fragment_data,
+                    "orientation": 'horizontal' if orientation is TYPE_ORIENTATION_HORIZONTAL else 'vertical',
+                    "type": str(block.__class__.__name__)
+                }
             fragment_info_list.append(item)
         return fragment_info_list
 

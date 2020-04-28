@@ -32,6 +32,10 @@
 
 ![](img/rotate_rect.png)
 
+### 单个文字包围框示例
+
+![](img/char_box.png)
+
 ### 使用方式
 
 - 环境安装(Python3.6+，建议使用conda环境)

@@ -242,7 +242,8 @@ def _gen_lsvt(layout_data, lsvt_json_path):
         for fragment in fragment_list:
             txt = fragment['data']
             rotate_box = fragment['rotate_box']
-            lsvt_info = dict(transcription=txt, points=rotate_box, illegibility=False)
+            char_boxes = fragment['char_boxes']
+            lsvt_info = dict(transcription=txt, points=rotate_box, char_boxes=char_boxes, illegibility=False)
             lsvt_dict_list.append(lsvt_info)
         load_dict.update({pic_name: lsvt_dict_list})
         # f.seek(0)
