@@ -170,9 +170,9 @@ class TextImgProvider(NextBlockGenerator):
         fp = self.next_font_path()
 
         if isinstance(strategy, HorizontalStrategy):
-            orientation = TYPE_ORIENTATION_VERTICAL
-        elif isinstance(strategy, VerticalStrategy):
             orientation = TYPE_ORIENTATION_HORIZONTAL
+        elif isinstance(strategy, VerticalStrategy):
+            orientation = TYPE_ORIENTATION_VERTICAL
         elif isinstance(strategy, HorizontalFlowStrategy):
             orientation = TYPE_ORIENTATION_HORIZONTAL
         elif isinstance(strategy, VerticalFlowStrategy):
