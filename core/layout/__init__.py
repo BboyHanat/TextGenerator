@@ -347,7 +347,7 @@ class Layout:
 
         name = hashlib.sha1(self.bg_img.tobytes()).hexdigest()
 
-        pic_name = "pic_" + name + ".jpg"
+        pic_name = "pic_" + name + ".png"
         pic_path = os.path.join(pic_dir, pic_name)
         with open(pic_path, 'wb') as f:
             self.bg_img.save(f)
@@ -358,7 +358,7 @@ class Layout:
 
         for index, fragment in enumerate(self.collect_block_fragment()):
             fragment_img = fragment['img']
-            fragment_img_name = "fragment_" + name + str(index) + ".jpg"
+            fragment_img_name = "fragment_" + name + str(index) + ".png"
             fragment_img_path = os.path.join(fragment_dir, fragment_img_name)
             with open(fragment_img_path, 'wb') as f:
                 fragment_img.save(f)

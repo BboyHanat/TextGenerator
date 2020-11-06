@@ -134,7 +134,7 @@ def gen_voc(layout_data):
     log.info("voc data gen success")
 
 
-def _gen_voc(save_dir, data, image_format='jpg'):
+def _gen_voc(save_dir, data, image_format='png'):
     w = data['width']
     h = data['height']
 
